@@ -1,0 +1,41 @@
+﻿
+@model IEnumerable<BetaClientesVM.PML.PMLAreasVM>
+
+<div class="table-responsive">
+    <table class="table datatable-basic small coloresTablas" id="dtAreas" width="100%">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(label => label.Area_Nombre)</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (Model != null)
+            {
+                foreach (var row in Model)
+                {
+                    <tr>
+                        <td onclick="ConsultarSubAreas('@row.Area_IdArea');" style="cursor: pointer;">@Html.DisplayFor(modelItem => row.Area_Nombre)</td>
+
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="DatosFormularioAreasSubAreas('@Json.Encode(row)', '4')" title="Editar">
+                                    <i class="fas fa-edit fa-1x"></i>
+                                </button>
+
+                                <button type="button" class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacionArea('@Json.Encode(row)')" title="Eliminar">
+                                    <i class="fas fa-trash fa-1x"></i>
+                                </button>
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+
+

@@ -1,0 +1,216 @@
+﻿@model IEnumerable<BetaClientesVM.PML.PMLFrecuenciaVM>
+
+<div class="table-responsive">
+    <table class="table datatable-basic small coloresTablas" width="100%">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(label => label.DescripcionTipoProducto)</th>
+                <th>Alt.</th>
+                <th>@Html.DisplayNameFor(label => label.Frec_Frecuencia)</th>
+                <th>@Html.DisplayNameFor(label => label.DescripcionProducto)</th>
+                <th>@Html.DisplayNameFor(label => label.Frec_Concentracion)</th>
+                <th>@Html.DisplayNameFor(label => label.DescripcionUDM)</th>
+                <th>@Html.DisplayNameFor(label => label.DescripcionTipoLimpieza)</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (Model != null)
+                        {
+
+                            foreach (var rowPadre in Model.Where(p => p.Frec_IdFrecuenciaPadre == null))
+                            {
+                                var contadorHijos = Model.Count(x => x.Frec_IdFrecuenciaPadre == rowPadre.Frec_IdFrecuencia);
+
+                                if (rowPadre.Frec_IdFrecuenciaPadre == null)
+                                {
+
+
+                        <tr>
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                        <tr class="font-weight-bold">
+                                            <td>@rowPadre.DescripcionTipoProducto<br /> 
+                                            </td>
+                                        </tr>
+                                        @foreach (var rowHijo in Model.Where(x => x.Frec_IdFrecuenciaPadre == rowPadre.Frec_IdFrecuencia))
+                                        {
+                                            <tr>
+                                                <td>@rowHijo.DescripcionTipoProducto</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+
+
+
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                        <tr class="font-weight-bold">
+                                            <td>NO</td>
+                                        </tr>
+                                        @foreach (var rowHijo in Model.Where(x => x.Frec_IdFrecuenciaPadre == rowPadre.Frec_IdFrecuencia))
+                                        {
+                                            <tr>
+                                                <td>SI</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+
+
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                        <tr class="font-weight-bold">
+                                            <td>@(char.ToUpper(rowPadre.Frec_Frecuencia[0]) + rowPadre.Frec_Frecuencia.Substring(1))</td>
+
+                                        </tr>
+
+                                        @*@foreach (var rowHijo in Model.Where(x => x.Frec_IdFrecuenciaPadre == rowPadre.Frec_IdFrecuencia))
+                                        {
+                                            <tr>
+                                                <td>@(string.IsNullOrEmpty(rowHijo.Frec_Frecuencia) ? "" : char.ToUpper(rowHijo.Frec_Frecuencia[0]) + rowHijo.Frec_Frecuencia.Substring(1))</td>
+                                            </tr>
+                                        }*@
+                                    </tbody>
+                                </table>
+                            </td>
+
+
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                        <tr class="font-weight-bold">
+                                            <td>@rowPadre.DescripcionProducto</td>
+                                        </tr>
+                                        @foreach (var rowHijo in Model.Where(x => x.Frec_IdFrecuenciaPadre == rowPadre.Frec_IdFrecuencia))
+                                        {
+                                            <tr>
+                                                <td>@rowHijo.DescripcionProducto</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+
+
+
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                        <tr class="font-weight-bold">
+                                            <td>@rowPadre.Frec_Concentracion</td>
+                                        </tr>
+                                        @foreach (var rowHijo in Model.Where(x => x.Frec_IdFrecuenciaPadre == rowPadre.Frec_IdFrecuencia))
+                                        {
+                                            <tr>
+                                                <td>@rowHijo.Frec_Concentracion</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+
+
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                        <tr class="font-weight-bold">
+                                            <td>@rowPadre.DescripcionUDM</td>
+                                        </tr>
+                                        @foreach (var rowHijo in Model.Where(x => x.Frec_IdFrecuenciaPadre == rowPadre.Frec_IdFrecuencia))
+                                        {
+                                            <tr>
+                                                <td>@rowHijo.DescripcionUDM</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+
+
+
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                        <tr class="font-weight-bold">
+                                            <td>@rowPadre.DescripcionTipoLimpieza</td>
+                                        </tr>
+                                        @foreach (var rowHijo in Model.Where(x => x.Frec_IdFrecuenciaPadre == rowPadre.Frec_IdFrecuencia))
+                                        {
+                                            <tr>
+                                                <td>@rowHijo.DescripcionTipoLimpieza</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+
+
+
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                        <tr class="text-right">
+                                            <td>
+                                                <div class="btn-group" role="group">
+
+                                                    @if(contadorHijos<2){
+                                                        <button type="button" class="btn btn-sm btn-info rounded-pill mr-1" title="Alternar" onclick="AlternarProducto('@Json.Encode(rowPadre)');">
+                                                            <i class="fas fa-plus fa-1x"></i>
+                                                        </button>
+                                                    }
+                                                    <button type="button" class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="DatosFormulario('@Json.Encode(rowPadre)', '3')" title="Editar">
+                                                        <i class="fas fa-edit fa-1x"></i>
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacionFrecuencia('@Json.Encode(rowPadre)')" title="Eliminar">
+                                                        <i class="fas fa-trash fa-1x"></i>
+                                                    </button>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @foreach (var rowHijo in Model.Where(x => x.Frec_IdFrecuenciaPadre == rowPadre.Frec_IdFrecuencia))
+                                        {
+                                            <tr>
+                                                <td class="text-right">
+                                                    <div class="btn-group" role="group">
+
+                                                        <button type="button" class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="DatosFormulario('@Json.Encode(rowHijo)', '3')" title="Editar">
+                                                            <i class="fas fa-edit fa-1x"></i>
+                                                        </button>
+
+                                                        <button type="button" class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacionFrecuencia('@Json.Encode(rowHijo)')" title="Eliminar">
+                                                            <i class="fas fa-trash fa-1x"></i>
+                                                        </button>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+
+
+
+
+
+                        </tr>
+                    }
+                }
+            }
+
+        </tbody>
+    </table>
+
+</div>
+
+

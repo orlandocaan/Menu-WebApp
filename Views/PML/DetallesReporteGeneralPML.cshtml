@@ -1,0 +1,781 @@
+﻿@model BetaClientesVM.PML.PMLProgramaVM
+@{
+    ViewBag.Title = "Programa";
+    ViewBag.NombreModulo = "PML";
+    ViewBag.TituloPagina = "Detalles del Programa";
+
+    if (ViewBag.MensajeError != null)
+    {
+        <script>
+        $(document).ready(function () {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', '@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.MensajeError))', "warning");
+        });
+        </script>
+    }
+}
+
+
+
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
+                        <div class="row">
+
+                            <div class="col-xs-12 col-md-12 col-md-4 col-lg-4 col-xl-4 mt-2">
+                                @Html.LabelFor(model => model.Pro_FechaPrograma, htmlAttributes: new { @class = "font-weight-bold" })
+                                <div style="position: relative;">
+                                    @Html.EditorFor(model => model.Pro_FechaPrograma, new { htmlAttributes = new { @class = "form-control text-center calendario", @autocomplete = "off", @disabled = "true" } })
+                                    <i class="fas fa-calendar-alt" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                                </div>
+                                @Html.ValidationMessageFor(model => model.Pro_FechaPrograma, "", new { @class = "text-danger" })
+                            </div>
+
+
+                            <div class="col-xs-12 col-md-12 col-md-4 col-lg-4 col-xl-4 mt-2">
+                                @Html.LabelFor(model => model.Pro_IdTurno, htmlAttributes: new { @class = "font-weight-bold" })
+                                @Html.DropDownListFor(model => model.Pro_IdTurno, ViewBag.cmbTurno as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control ", @disabled = "true" })
+                                @Html.ValidationMessageFor(model => model.Pro_IdTurno, "", new { @class = "text-danger" })
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-3 text-right form-group">
+                        <br />
+                        <a href="@Url.Action("BitacoraProgramaMaestro","PML")" class="btn btn-sm btn-secondary rounded-pill" id="btnRegresar">
+                            <i class="fas fa-arrow-circle-left"></i> Regresar
+                        </a>
+
+                        <button type="button" class="btn btn-sm btn-success rounded-pill" id="btnAgregarEquipoPrograma">
+                            <i class="fas fa-plus-circle fa-1x"></i> Agregar Equipo
+                        </button>
+
+                        <button type="button" class="btn btn-sm btn-primary rounded-pill" id="btnActualizarDatosDetalles" >
+                            <i class="fas fa-plus-circle fa-1x"></i> Guardar
+                        </button>
+
+                    </div>
+
+
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-4" id="divDetallesProgramas">
+                        @Html.Partial("_ListaDetallesPrograma", Model.ListaDetalles)
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Basic modal -->
+
+
+
+
+
+
+<div id="ModalFirmas" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Firmas </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <label for="comentariosTextarea"><b>Comentarios:</b></label>
+                        <textarea rows="2" cols="3" id="txtComentariosFirma" class="form-control" placeholder="Comentarios"></textarea>
+                    </div>
+                </div>
+
+                <div class="row text-center mt-1">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <canvas class="signature-canvas" id="canvas" width="800" height="300">
+                        </canvas>
+                        <br />
+                        <button class="btn btn-sm btn-secondary rounded-pill" id="clearButton">Borrar Firma</button>
+                    </div>
+                </div>
+
+
+
+
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal" id="btnCerrarModalFirma"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarFirma"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="ModalAgregarEquipos" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Agregar Nuevo Equipo </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divCuerpoModalAgregarEquipos">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal" id="btnFinalizar"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill" id="btnGuardarNuevoDetalle"><i class="fas fa-save fa-1x"></i> Guardar</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@*<div id="ModalBuscadorColaboradoresNuevoDetalle" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModalSecondary">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Buscador Colaboradores Para Nuevo Detalle</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divCuerpoModalNuevoDetalle">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal" id="btnFinalizar"><i class="fas fa-times"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+
+
+<div id="ModalBuscadorColaboradores" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Buscador Colaboradores </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divCuerpoModal">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal" id="btnFinalizar"><i class="fas fa-times"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Basic modal -->
+
+
+<script>
+    class SignatureField {
+        constructor(canvasId, clearButtonId) {
+            this.canvas = document.getElementById(canvasId);
+            this.context = this.canvas.getContext('2d');
+            this.clearButton = document.getElementById(clearButtonId);
+            this.isDrawing = false;
+
+            this.canvas.addEventListener('mousedown', this.startDrawing.bind(this));
+            this.canvas.addEventListener('mousemove', this.draw.bind(this));
+            this.canvas.addEventListener('mouseup', this.stopDrawing.bind(this));
+
+            // Eventos táctiles para dispositivos móviles
+            this.canvas.addEventListener('touchstart', this.startDrawing.bind(this));
+            this.canvas.addEventListener('touchmove', this.draw.bind(this));
+            this.canvas.addEventListener('touchend', this.stopDrawing.bind(this));
+
+            this.clearButton.addEventListener('click', this.clearSignature.bind(this));
+        }
+
+        startDrawing(e) {
+            e.preventDefault();
+            this.isDrawing = true;
+            this.context.beginPath();
+            this.draw(e);
+        }
+
+        draw(e) {
+            e.preventDefault();
+            if (!this.isDrawing) return;
+
+            let x, y;
+
+            if (e.type === 'mousemove') {
+                x = e.clientX - this.canvas.getBoundingClientRect().left;
+                y = e.clientY - this.canvas.getBoundingClientRect().top;
+            } else if (e.type === 'touchmove') {
+                x = e.touches[0].clientX - this.canvas.getBoundingClientRect().left;
+                y = e.touches[0].clientY - this.canvas.getBoundingClientRect().top;
+            }
+
+            this.context.lineWidth = 2;
+            this.context.lineCap = 'round';
+            this.context.strokeStyle = 'black';
+
+            this.context.lineTo(x, y);
+            this.context.stroke();
+            this.context.beginPath();
+            this.context.moveTo(x, y);
+        }
+
+        stopDrawing() {
+            this.isDrawing = false;
+        }
+
+        clearSignature() {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+
+        saveSignature() {
+            return this.canvas.toDataURL('image/png');
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const signatureField = new SignatureField('canvas', 'clearButton');
+
+        document.getElementById('clearButton').addEventListener('click', function () {
+            signatureField.clearSignature();
+        });
+
+
+
+        document.getElementById('btnGuardarFirma').addEventListener('click', function () {
+            const canvas = signatureField.canvas; // Obtener el canvas del campo de firma
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            let isEmpty = true;
+
+            // Iterar a través de todos los píxeles del canvas
+            for (let i = 0; i < data.length; i += 4) {
+                // Verificar si hay algún píxel no transparente
+                if (data[i + 3] !== 0) {
+                    isEmpty = false;
+                    break;
+                }
+            }
+
+            let imagen = signatureField.saveSignature();
+
+            var puesto = $("#ModalFirmas").data('puesto');
+            var identificador = $("#ModalFirmas").data('identificador');
+            const comentarios = $("#txtComentariosFirma").val();
+
+            if (puesto.trim() == "Responsable") {
+
+                cadenaFirma    =   imagen.split(';base64,')[1];
+                $("#CadenaFirmaResponsable" + identificador).val(cadenaFirma);
+                $("#ComentariosResponsable" + identificador).val(comentarios);
+            } else {
+                cadenaFirma = imagen.split(';base64,')[1];
+                $("#CadenaFirmaSupervisor" + identificador).val(cadenaFirma);
+                $("#ComentariosSupervisor" + identificador).val(comentarios);
+            }
+
+            // Limpiamos las clases de bootstrap
+            $("#btnFirma" + puesto + identificador).removeClass("btn-primary");
+            $("#btnFirma" + puesto + identificador).removeClass("btn-success");
+
+            // Asignamos la clase de bootstrap
+            if (isEmpty) {
+                $("#btnFirma" + puesto + identificador).addClass("btn-primary");
+            } else {
+                $("#btnFirma" + puesto + identificador).addClass("btn-success");
+            }
+
+            $("#ModalFirmas").modal("hide");
+        });
+
+
+
+
+        document.getElementById('btnCerrarModalFirma').addEventListener('click', function () {
+            $("#txtComentariosFirma").val("");
+            signatureField.clearSignature();
+        });
+    });
+</script>
+
+
+<script>
+
+    //Para buscador del colaborador
+    function BuscadorColaborador(datosJson, identificador)
+    {
+        const row = JSON.parse(datosJson);
+        $("#ModalBuscadorColaboradores").data('identificador', identificador);
+        $("#ModalBuscadorColaboradores").data('Invocacion', 'Detalle');
+
+
+        AJAXAbrirModalBuscadorColaborador(4, row.DetPro_IdArea, row.DetPro_IdEquipo, 12);
+    }
+
+
+
+    //AJAXBuscadorColaborador
+    function AJAXAbrirModalBuscadorColaborador(accion, idArea, idEquipo, idPuesto)
+    {
+        $.ajax({
+            type        :   "get",
+            url         :   '@Url.Action("BuscadorColaboradorCalificado", "PML")',
+            data        :   { accion: accion , idArea: idArea,  idEquipo: idEquipo },
+            contentType :   "application/json; charset=utf-8",
+        }).done(function (result) {
+            $("#ModalBuscadorColaboradores").modal("show");
+            $("#divCuerpoModal").html(result);
+
+            $(document).ready(function () {
+                $('.buscadorColaboradores').DataTable();
+            });
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al abrir el buscador de Colaboradores", "error");
+
+        });
+    }
+
+
+
+    //Para buscador del responsable
+    function BuscadorResponsable(datosJson, identificador)
+    {
+        const row = JSON.parse(datosJson);
+        $("#ModalBuscadorColaboradores").data('identificador', identificador);
+        $("#ModalBuscadorColaboradores").data('puesto', 'responsable');
+
+
+        AJAXAbrirModalBuscadorSupervisorResponsable(8, 13);
+    }
+
+
+    //Para buscador del responsable
+    function AJAXAbrirModalBuscadorSupervisorResponsable(idArea, idPuesto)
+    {
+        $.ajax({
+            type        :   "get",
+            url         :   '@Url.Action("BuscadorColaborador", "PML")',
+            data        :   { idArea: idArea,  idPuesto: idPuesto },
+            contentType :   "application/json; charset=utf-8",
+        }).done(function (result) {
+            $("#ModalBuscadorColaboradores").modal("show");
+            $("#divCuerpoModal").html(result);
+            $(document).ready(function () {
+                $('.buscadorColaboradores').DataTable();
+            });
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al abrir el buscador de Colaboradores", "error");
+
+        });
+    }
+
+
+
+    //Para capturar los datos del colaborador o operador que brindara la limpieza del equipo
+    function DatosColaboradorCalificado(datosJSON)
+    {
+        const row = JSON.parse(datosJSON);
+        var identificador = $("#ModalBuscadorColaboradores").data('identificador');
+        const invocadoDesde = $("#ModalBuscadorColaboradores").data('Invocacion');
+
+
+        if (invocadoDesde.trim() === "Detalle") {
+
+            $("#IdOperador" + identificador).val(row.Cal_IdCalificacion);
+            $("#NombreOperador" + identificador).val(row.NombreDelColaborador);
+
+        } else {
+
+            $("#IdOperadorNuevoDetalle" + identificador).val(row.Cal_IdCalificacion);
+            $("#NombreOperadorNuevoDetalle" + identificador).val(row.NombreDelColaborador);
+
+        }
+
+
+        $("#ModalBuscadorColaboradores").modal("hide");
+    }
+
+
+
+    //Para buscador del supervisor
+    function BuscadorSupervisor(datosJson, identificador)
+    {
+        const row = JSON.parse(datosJson);
+        $("#ModalBuscadorColaboradores").data('identificador', identificador);
+        $("#ModalBuscadorColaboradores").data('puesto', 'supervisor');
+
+        AJAXAbrirModalBuscadorSupervisorResponsable(8, 11);
+    }
+
+
+    //Para capturar los datos del colaborador
+    function DatosColaborador(datosJSON)
+    {
+        const row = JSON.parse(datosJSON);
+        var identificador = $("#ModalBuscadorColaboradores").data('identificador');
+        var puesto = $("#ModalBuscadorColaboradores").data('puesto');
+
+        if (puesto.trim() == "responsable") {
+            $("#IdResponsable" + identificador).val(row.Col_IdColaborador);
+            $("#NombreResponsable" + identificador).val(row.Col_Nombre);
+        } else {
+            $("#IdSupervisor" + identificador).val(row.Col_IdColaborador);
+            $("#NombreSupervisor" + identificador).val(row.Col_Nombre);
+        }
+
+        $("#ModalBuscadorColaboradores").modal("hide");
+
+    }
+
+
+    function AgregarFirma(datosJson, puesto)
+    {
+        const row = JSON.parse(datosJson);
+
+        //Definimos los datas del modal
+        $("#ModalFirmas").data('puesto', puesto);
+        $("#ModalFirmas").data('identificador', row.DetPro_IdEquipo);
+        limpiarCanvas();
+        $("#txtComentariosFirma").val("");
+        $("#ModalFirmas").modal("show");
+    }
+
+
+
+
+    function limpiarCanvas()
+    {
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+
+
+    //Para consultar los datos del equipo a agregar en programa
+    $("#btnAgregarEquipoPrograma").on("click", function () {
+        AJAXBuscadorEquiposPrograma(ObtenerDatos());
+    });
+
+
+    function AJAXBuscadorEquiposPrograma(objDetallesVM)
+    {
+        $.ajax({
+            type       :    "post",
+            url        :    '@Url.Action("AgregarNuevoEquipoPrograma", "PML")',
+            data       :    JSON.stringify({ objDetalles: objDetallesVM }),
+            contentType:    "application/json; charset=utf-8",
+        }).done(function (result) {
+            $("#ModalAgregarEquipos").modal("show");
+            $("#divCuerpoModalAgregarEquipos").html(result);
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al consultar la lista de los Equipos AJAXBuscadorEquiposPrograma.", "error");
+
+        });
+    }
+
+
+    function ObtenerDatos() {
+
+        let objDetalleVM = {
+            Accion              :   4,
+            FechaDelPrograma    :   '@Model.Pro_FechaPrograma',
+            IdTurno             :   '@Model.Pro_IdTurno',
+            DetPro_IdPrograma   :   '@Model.Pro_IdPrograma',
+        };
+
+        return objDetalleVM;
+    }
+
+
+
+    //Mensaje de eliminacion de linea detalle
+    function MensajeEliminacionLineaDetalle(datosJSON) {
+        const row = JSON.parse(datosJSON);
+
+        swalInit.fire({
+            title: '@ViewBag.TituloPagina',
+            html: "<br>Se eliminara <b> " + row.DetPro_NombreEquipo + "</b> <br> Si tienes cambios pendientes de guardar asegurate de guardarlos antes de continuar.  <br><br> ¿Deseas Continuar? ",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+            cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn btn-primary rounded-pill',
+                cancelButton: 'btn btn-danger rounded-pill'
+            }
+        }).then(function (result) {
+            if (result.value) {
+
+                let objDetalle = {
+                    Accion                  :   5,
+                    DetPro_IdDetalle        :   row.DetPro_IdDetalle,
+                    DetPro_IdPrograma       :   row.DetPro_IdPrograma,
+                    DetPro_IdAreaPrograma   :   row.DetPro_IdAreaPrograma
+                };
+
+                AJAXGestionarDetalles(objDetalle);
+            }
+        });
+    }
+
+
+    //Para realizar la elimicacion de la linea detalle del programa
+    function AJAXGestionarDetalles(objDetalleVM)
+    {
+
+        $.ajax({
+            type       :    "post",
+            url        :    '@Url.Action("GestionarDetallesPrograma", "PML")',
+            data       :    JSON.stringify({ objDetallesVM: objDetalleVM }),
+            contentType:    "application/json; charset=utf-8",
+        }).done(function (result) {
+            if (parseInt(result.Resultado)>0) {
+                window.location.href = '@Url.Action("DetallesReporteGeneralPML", "PML", new { idPrograma = Model.Pro_IdPrograma })';
+
+            }
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al Guardar los detalles del programa AJAXGuardarDetalles()", "error");
+
+        });
+    }
+
+
+
+
+    ///NuevoDetalle
+    function BuscadorColaboradorNuevoDetalle(datosJson, identificador) {
+
+        const row = JSON.parse(datosJson);
+        $("#ModalBuscadorColaboradores").data('identificador', identificador);
+        $("#ModalBuscadorColaboradores").data('Invocacion', 'NuevoDetalle');
+
+        AJAXAbrirModalBuscadorColaborador(4, row.DetPro_IdArea, row.DetPro_IdEquipo, 12);
+
+    }
+
+
+    //Para realizar la lectura de ls detalles checkeados de la tabla para Agregar Nuevo Detalle
+    function ObtenerDatosNuevoDetalle()
+    {
+        var objetos = [];
+        $('.AgregarNuevoDetalle tbody tr').each(function () {
+
+            //Se capturan los datos de las filas donde el checkbox de la columna agregar esta marcada (checked)
+            if ($(this).find('input[name="AgregarFilaNuevoDetalle"]').prop('checked')) {
+                var objeto = {
+                    Accion: 2,
+                    DetPro_IdPrograma           :   '@Model.Pro_IdPrograma',
+                    DetPro_IdArea               :   $(this).find('input[name="DetPro_IdAreaNuevoDetalle"]').val(),
+                    DetPro_IdColaborador        :   $(this).find('input[name="DetPro_IdColaboradorNuevoDetalle"]').val(),
+                    DetPro_IdEquipo             :   $(this).find('input[name="DetPro_IdEquipoNuevoDetalle"]').val(),
+                    DetPro_NombreColaborador    :   $(this).find('input[name="DetPro_NombreColaboradorNuevoDetalle"]').val(),
+                    DetPro_NombreEquipo         :   $(this).find('input[name="DetPro_NombreEquipoNuevoDetalle"]').val(),
+                    DetPro_IdProductoBase       :   $(this).find('input[name="DetPro_IdProductoBaseNuevoDetalle"]').val(),
+                    DetPro_IdProductoAlt1       :   $(this).find('input[name="DetPro_IdProductoAlt1NuevoDetalle"]').val(),
+                    DetPro_IdProductoAlt2       :   $(this).find('input[name="DetPro_IdProductoAlt2NuevoDetalle"]').val(),
+                    DetPro_NombreProductoBase   :   $(this).find('input[name="DetPro_NombreProductoBaseNuevoDetalle"]').val(),
+                    DetPro_NombreProductoAlt1   :   $(this).find('input[name="DetPro_NombreProductoAlt1NuevoDetalle"]').val(),
+                    DetPro_NombreProductoAlt2   :   $(this).find('input[name="DetPro_NombreProductoAlt2NuevoDetalle"]').val(),
+
+                    DetPro_ProductoBaseActivo   :   $(this).find('input[name="DetPro_ProductoBaseActivoNuevoDetalle"]').prop('checked') ? 1 : 0,
+                    DetPro_ProductoAlt1Activo   :   $(this).find('input[name="DetPro_ProductoAlt1ActivoNuevoDetalle"]').prop('checked') ? 1 : 0,
+                    DetPro_ProductoAlt2Activo   :   $(this).find('input[name="DetPro_ProductoAlt2ActivoNuevoDetalle"]').prop('checked') ? 1 : 0,
+
+                    IdResponsable               :   $(this).find('input[name="IdResponsableNuevoDetalle"]').val(),
+                    IdSupervisor                :   $(this).find('input[name="IdSupervisorNuevoDetalle"]').val(),
+                    NombreResponsable           :   $(this).find('input[name="NombreResponsableNuevoDetalle"]').val(),
+                    ComentariosResponsable      :   $(this).find('input[name="ComentariosResponsable"]').val(),
+                    NombreSupervisor            :   $(this).find('input[name="NombreSupervisorNuevoDetalle"]').val(),
+                    ComentariosSupervisor       :   $(this).find('input[name="ComentariosSupervisor"]').val(),
+
+                };
+
+                objetos.push(objeto);
+            }
+
+        });
+
+        return objetos;
+    }
+
+
+
+    $("#btnGuardarNuevoDetalle").on("click", function () {
+        AJAXListaGestionarDetalles(ObtenerDatosNuevoDetalle());
+    });
+
+
+        //Para realizar la elimicacion de la linea detalle del programa
+    function AJAXListaGestionarDetalles(objDetalleVM)
+    {
+
+        $.ajax({
+            type       :    "post",
+            url        :    '@Url.Action("ListaGestionarDetallesPrograma", "PML")',
+            data       :    JSON.stringify({ listaDetalles: objDetalleVM }),
+            contentType:    "application/json; charset=utf-8",
+        }).done(function (result) {
+            if (parseInt(result.Resultado)>0) {
+                window.location.href = '@Url.Action("DetallesReporteGeneralPML", "PML", new { idPrograma = Model.Pro_IdPrograma })';
+
+            }
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al Guardar los detalles del programa AJAXGuardarDetalles()", "error");
+
+        });
+    }
+
+
+    //Guardar los detalles del programa
+    $("#btnActualizarDatosDetalles").on("click", function () {
+        AJAXActualizarDetalles(ObtenerDatosParaActualizarDetalles());
+    });
+
+
+
+    function ObtenerDatosParaActualizarDetalles() {
+        var objetos = [];
+
+        $('.TablaDetallesPrograma tbody tr').each(function () {
+            var objeto = {
+                DetPro_IdPrograma           :   '@Model.Pro_IdPrograma',
+                DetPro_IdDetalle            :   $(this).find('input[name="DetPro_IdDetalle"]').val(),
+                DetPro_IdAreaPrograma       :   $(this).find('input[name="DetPro_IdAreaPrograma"]').val(),
+                DetPro_IdArea               :   $(this).find('input[name="DetPro_IdArea"]').val(),
+                DetPro_IdColaborador        :   $(this).find('input[name="DetPro_IdColaborador"]').val(),
+                DetPro_IdEquipo             :   $(this).find('input[name="DetPro_IdEquipo"]').val(),
+                DetPro_NombreColaborador    :   $(this).find('input[name="DetPro_NombreColaborador"]').val(),
+                DetPro_NombreEquipo         :   $(this).find('input[name="DetPro_NombreEquipo"]').val(),
+                DetPro_IdProductoBase       :   $(this).find('input[name="DetPro_IdProductoBase"]').val(),
+                DetPro_IdProductoAlt1       :   $(this).find('input[name="DetPro_IdProductoAlt1"]').val(),
+                DetPro_IdProductoAlt2       :   $(this).find('input[name="DetPro_IdProductoAlt2"]').val(),
+                DetPro_NombreProductoBase   :   $(this).find('input[name="DetPro_NombreProductoBase"]').val(),
+                DetPro_NombreProductoAlt1   :   $(this).find('input[name="DetPro_NombreProductoAlt1"]').val(),
+                DetPro_NombreProductoAlt2   :   $(this).find('input[name="DetPro_NombreProductoAlt2"]').val(),
+
+
+                DetPro_ProductoBaseActivo   :   $(this).find('input[name="DetPro_ProductoBaseActivo"]').prop('checked') ? 1 : 0,
+                DetPro_ProductoAlt1Activo   :   $(this).find('input[name="DetPro_ProductoAlt1Activo"]').prop('checked') ? 1 : 0,
+                DetPro_ProductoAlt2Activo   :   $(this).find('input[name="DetPro_ProductoAlt2Activo"]').prop('checked') ? 1 : 0,
+
+
+                IdResponsable               :   $(this).find('input[name="IdResponsable"]').val(),
+                IdSupervisor                :   $(this).find('input[name="IdSupervisor"]').val(),
+                NombreResponsable           :   $(this).find('input[name="NombreResponsable"]').val(),
+                NombreResponsable           :   $(this).find('input[name="NombreResponsable"]').val(),
+                NombreSupervisor            :   $(this).find('input[name="NombreSupervisor"]').val(),
+                ComentariosResponsable      :   $(this).find('input[name="ComentariosResponsable"]').val(),
+                ComentariosSupervisor       :   $(this).find('input[name="ComentariosSupervisor"]').val(),
+
+
+                CadenaFirmaResponsable      :   $(this).find('input[name="CadenaFirmaResponsable"]').val() ?? '',
+                CadenaFirmaSupervisor       :   $(this).find('input[name="CadenaFirmaSupervisor"]').val() ?? '',
+
+            };
+
+            objetos.push(objeto);
+
+        });
+
+        return objetos;
+    }
+
+
+
+    //Para actualizar productos, colaboradores, responsables y supervisores
+    function AJAXActualizarDetalles(objDetallesVM)
+    {
+        $.ajax({
+            type       :    "post",
+            url        :    '@Url.Action("ActualizarDetallesPrograma", "PML")',
+            data       :    JSON.stringify({ listaDetalles: objDetallesVM }),
+            contentType:    "application/json; charset=utf-8",
+        }).done(function (result) {
+            const idPrograma = '@Model.Pro_IdPrograma';
+
+            if (parseInt(result.Resultado) > 0) {
+                window.location.href = '@Url.Action("DetallesReporteGeneralPML", "PML")' + '?idPrograma=' + encodeURIComponent(idPrograma);
+            }
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al Guardar los detalles del programa AJAXActualizarDetalles()", "error");
+
+        });
+    }
+
+
+</script>
+
+
+<style>
+    .columna-oculta {
+        display: none;
+    }
+
+    .signature-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .signature-canvas {
+        border: 1px solid #818080a2;
+    }
+</style>
+
+<style>
+    #canvas {
+        max-width: 100%; /* Añadir esta línea */
+    }
+</style>

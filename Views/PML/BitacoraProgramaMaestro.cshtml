@@ -1,0 +1,149 @@
+﻿@model BetaClientesVM.PML.PMLProgramaVM
+@{
+    ViewBag.Title = "PML Bitácora del Programa Maestro";
+    ViewBag.NombreModulo = "PML";
+    ViewBag.TituloPagina = "Bitácora del Programa Maestro";
+
+    if (ViewBag.MensajeError != null)
+    {
+        <script>
+        $(document).ready(function () {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', '@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.MensajeError))', "warning");
+        });
+        </script>
+    }
+}
+
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
+                        <div class="row">
+                            
+                            <div class="col-xs-12 col-md-12 col-md-4 col-lg-4 col-xl-4 mt-2">
+                                @Html.LabelFor(model => model.FechaInicio, htmlAttributes: new { @class = "font-weight-bold" })
+                                <div style="position: relative;">
+                                    @Html.EditorFor(model => model.FechaInicio, new { htmlAttributes = new { @Value = DateTime.Now.AddDays(-7).ToString("dd/MM/yyyy"), @class = "form-control text-center calendario", @autocomplete = "off" } })
+                                    <i class="fas fa-calendar-alt" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                                </div>
+                                @Html.ValidationMessageFor(model => model.FechaInicio, "", new { @class = "text-danger" })
+                            </div>
+
+
+                            <div class="col-xs-12 col-md-12 col-md-4 col-lg-4 col-xl-4 mt-2">
+                                @Html.LabelFor(model => model.FechaFin, htmlAttributes: new { @class = "font-weight-bold" })
+                                <div style="position: relative;">
+                                    @Html.EditorFor(model => model.FechaFin, new { htmlAttributes = new { @Value = DateTime.Now.ToString("dd/MM/yyyy"), @class = "form-control text-center calendario", @autocomplete = "off" } })
+                                    <i class="fas fa-calendar-alt" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                                </div>
+                                @Html.ValidationMessageFor(model => model.FechaFin, "", new { @class = "text-danger" })
+                            </div>
+
+
+                            <div class="col-xs-12 col-md-12 col-md-4 col-lg-4 col-xl-4 mt-3">
+                                @Html.Label("", htmlAttributes: new { @class = "font-weight-bold" })
+                                <br />
+                                <button class="btn btn-sm btn-success rounded-pill" id="btnConsultarProgramas">
+                                    <i class="fas fa-search fa-1x"></i> Buscar
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-3 text-right">
+                        <br />
+                        <a href="@Url.Action("ReporteGeneralPML", "PML")" class="btn btn-sm btn-primary rounded-pill" id="btnAgregarProducto">
+                            <i class="fas fa-plus-circle fa-1x"></i> Agregar
+                        </a>
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-4" id="divListaProgramas">
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    function AJAXConsultaProgramas(objProgramaVM) {
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("ConsultarProgramasMaestro", "PML")',
+            data       :    JSON.stringify({ objProgramaVM: objProgramaVM }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+
+            $("#divListaProgramas").html(result);
+            CargarTabla();
+
+        }).fail(function (error) {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrio un error al consultar la lista de programas", "error");
+        });
+    }
+
+
+    AJAXConsultaProgramas(ObtenerDatos());
+
+
+
+    function ObtenerDatos() {
+
+        let objProgramaVM = {
+            Accion      :   1,
+            FechaInicio :   $("#FechaInicio").val(),
+            FechaFin    :   $("#FechaFin").val(),
+        };
+
+        return objProgramaVM;
+    }
+
+
+
+    $("#btnConsultarProgramas").on("click", function () {
+
+        const msgValidacion = ValidacionCamposConsulta(ObtenerDatos());
+
+        if (msgValidacion === "") {
+            AJAXConsultaProgramas(ObtenerDatos());
+        } else {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', msgValidacion, "warning");
+        }
+
+    });
+
+
+    function ValidacionCamposConsulta(objDatos)
+    {
+        let msgError = "";
+
+        const FechaInicio       =   objDatos.FechaInicio;
+        const FechaFin          =   objDatos.FechaFin;
+
+        const fechaInicioObj    =   new Date(FechaInicio.split("/").reverse().join("-"));
+        const fechaFinObj = new Date(FechaFin.split("/").reverse().join("-"));
+
+        if (fechaInicioObj > fechaFinObj) {
+            msgError += `${$('label[for="FechaInicio"]').text()} No puede ser mayor que ${$('label[for="FechaFin"]').text()}. <br>`;
+        } 
+
+        return msgError;
+    }
+
+
+
+
+
+
+
+</script>

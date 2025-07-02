@@ -1,0 +1,54 @@
+﻿
+@model IEnumerable<BetaClientesVM.PML.PMLAreasVM>
+
+<div class="row m-b-1">
+    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
+        <h5 class="card-title">@Model.Select(row => row.NombreAreaPadre).FirstOrDefault()</h5>
+    </div>
+
+    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 text-right">
+        <button class="btn btn-sm btn-primary rounded-pill" onclick="AgregarSubArea();">
+            <i class="fas fa-plus-circle fa-1x"></i> Agregar Subárea
+        </button>
+    </div>
+</div>
+
+
+<div class="table-responsive">
+    <table class="table datatable-basic small coloresTablasSecundario" id="dtAreas" width="100%">
+        <thead>
+            <tr>
+                <th>Descripción de la Subárea</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (Model != null)
+            {
+                foreach (var row in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => row.Area_Nombre)</td>
+
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="DatosFormularioAreasSubAreas('@Json.Encode(row)', '4')" title="Editar">
+                                    <i class="fas fa-edit fa-1x"></i>
+                                </button>
+
+                                <button type="button" class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacionArea('@Json.Encode(row)')" title="Eliminar">
+                                    <i class="fas fa-trash fa-1x"></i>
+                                </button>
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+
+

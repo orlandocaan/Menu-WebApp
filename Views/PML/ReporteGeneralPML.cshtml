@@ -1,0 +1,384 @@
+﻿@model BetaClientesVM.PML.PMLProgramaVM
+@{
+    ViewBag.Title = "Programa";
+    ViewBag.NombreModulo = "PML";
+    ViewBag.TituloPagina = "Programa";
+
+    if (ViewBag.MensajeError != null)
+    {
+        <script>
+        $(document).ready(function () {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', '@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.MensajeError))', "warning");
+        });
+        </script>
+    }
+}
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
+                        <div class="row">
+
+                            <div class="col-xs-12 col-md-12 col-md-4 col-lg-4 col-xl-4 mt-2">
+                                @Html.LabelFor(model => model.Pro_FechaPrograma, htmlAttributes: new { @class = "font-weight-bold" })
+                                <div style="position: relative;">
+                                    @Html.EditorFor(model => model.Pro_FechaPrograma, new { htmlAttributes = new { @Value = DateTime.Now.ToString("dd/MM/yyyy"), @class = "form-control text-center calendario", @autocomplete = "off" } })
+                                    <i class="fas fa-calendar-alt" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                                </div>
+                                @Html.ValidationMessageFor(model => model.Pro_FechaPrograma, "", new { @class = "text-danger" })
+                            </div>
+
+
+                            <div class="col-xs-12 col-md-12 col-md-4 col-lg-4 col-xl-4 mt-2">
+                                @Html.LabelFor(model => model.Pro_IdTurno, htmlAttributes: new { @class = "font-weight-bold" })
+                                @Html.DropDownListFor(model => model.Pro_IdTurno, ViewBag.cmbTurno as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control " })
+                                @Html.ValidationMessageFor(model => model.Pro_IdTurno, "", new { @class = "text-danger" })
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-3 text-right form-group">
+                        <br />
+                        <button class="btn btn-sm btn-secondary rounded-pill" id="btnRegresar">
+                            <i class="fas fa-arrow-circle-left"></i> Regresar
+                        </button>
+
+                        <button type="button" class="btn btn-sm btn-primary rounded-pill" id="btnGuardarDetalles" style="visibility: hidden">
+                            <i class="fas fa-plus-circle fa-1x"></i> Guardar
+                        </button>
+
+                    </div>
+
+
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-4" id="divDetallesProgramas">
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Basic modal -->
+<div id="ModalBuscadorColaboradores" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Bucador Colaboradores </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divCuerpoModal">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal" id="btnFinalizar"><i class="fas fa-times"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Basic modal -->
+
+
+
+
+
+
+<script>
+
+    //cuando se selecciona un Turno del combo
+    $("#Pro_IdTurno").on("change", function () {
+        const msgError = ValidarCamposBuscador(ObtenerDatos());
+        if (msgError === "") {
+            AJAXConsultarEquipos(ObtenerDatos());
+        } else {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', msgError, "warning")
+        }
+    });
+
+
+    function AJAXConsultarEquipos(objDetallesVM)
+    {
+
+
+        $.ajax({
+            type       :    "post",
+            url        :    '@Url.Action("ConsultarDetallesDelPrograma", "PML")',
+            data       :    JSON.stringify({ objDetallesVM: objDetallesVM }),
+            contentType:    "application/json; charset=utf-8",
+        }).done(function (result) {
+
+            $("#btnGuardarDetalles").css("visibility", "visible");
+
+
+            $("#divGuardarDetalles").css("display", "block");
+            $("#divDetallesProgramas").html(result);
+            CargarTabla();
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al consultar la lista de los Equipos.", "error");
+
+        });
+    }
+
+
+    function ObtenerDatos()
+    {
+
+        let objDetalleVM = {
+            Accion              :   1,
+            FechaDelPrograma   :   $("#Pro_FechaPrograma").val(),
+            IdTurno         :   $("#Pro_IdTurno").val(),
+        };
+
+        return objDetalleVM;
+    }
+
+
+    function ValidarCamposBuscador(objDatos)
+    {
+        let msgError = "";
+
+        if (objDatos.FechaDelPrograma == null || objDatos.FechaDelPrograma == "") {
+            msgError += `${$('label[for="Pro_FechaPrograma"]').text()} es requerido. <br>`;
+        }
+
+        if (objDatos.IdTurno == null || objDatos.IdTurno == "") {
+            msgError += `${$('label[for="Pro_IdTurno"]').text()} es requerido. <br>`;
+        }
+
+        return msgError;
+    }
+
+
+    function BuscadorColaborador(datosJson, identificador)
+    {
+        const row = JSON.parse(datosJson);
+        $("#ModalBuscadorColaboradores").data('identificador', identificador);
+
+        AJAXAbrirModalBuscadorColaborador(4, row.DetPro_IdArea, row.DetPro_IdEquipo, 12);
+    }
+
+
+
+    function AJAXAbrirModalBuscadorColaborador(accion, idArea, idEquipo, idPuesto)
+    {
+        $.ajax({
+            type       : "get",
+            url: '@Url.Action("BuscadorColaboradorCalificado", "PML")',
+            data: { accion: accion , idArea: idArea,  idEquipo: idEquipo },
+            contentType: "application/json; charset=utf-8",
+        }).done(function (result) {
+            $("#ModalBuscadorColaboradores").modal("show");
+            $("#divCuerpoModal").html(result);
+            CargarTabla();
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al abrir el buscador de Colaboradores", "error");
+
+        });
+    }
+
+
+
+    function DatosColaboradorCalificado(datosJSON)
+    {
+        const row = JSON.parse(datosJSON);
+        var identificador = $("#ModalBuscadorColaboradores").data('identificador');
+        $("#IdOperador" + identificador).val(row.Cal_IdCalificacion);
+        $("#NombreOperador" + identificador).val(row.NombreDelColaborador);
+
+        $("#ModalBuscadorColaboradores").modal("hide");
+    }
+
+
+
+    $("#btnGuardarDetalles").on("click", function () {
+
+        const msgError = ValidarListaEquipos(ObtenerDatosTablaDetalles());
+        if (msgError) {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', msgError, "warning");
+        } else {
+            AJAXGuardarDetalles(ObtenerDatosPrograma());
+        }
+
+    });
+
+
+    function ObtenerDatosPrograma() {
+        let objProgramaVM = {
+            Accion              :   2,
+            Pro_FechaPrograma   :   $("#Pro_FechaPrograma").val(),
+            Pro_IdTurno         :   $("#Pro_IdTurno").val(),
+            ListaDetalles       :   ObtenerDatosTablaDetalles()
+        };
+
+        return objProgramaVM;
+
+    }
+
+
+    function ObtenerDatosTablaDetalles() {
+        var objetos = [];
+
+        $('.TablaDetallesPrograma tbody tr').each(function () {
+            var objeto = {
+                Accion                      :   2,
+                DetPro_IdArea               :   $(this).find('input[name="DetPro_IdArea"]').val(),
+                DetPro_IdColaborador        :   $(this).find('input[name="DetPro_IdColaborador"]').val(),
+                DetPro_IdEquipo             :   $(this).find('input[name="DetPro_IdEquipo"]').val(),
+                DetPro_NombreColaborador    :   $(this).find('input[name="DetPro_NombreColaborador"]').val(),
+                DetPro_NombreEquipo         :   $(this).find('input[name="DetPro_NombreEquipo"]').val(),
+                DetPro_IdProductoBase       :   $(this).find('input[name="DetPro_IdProductoBase"]').val(),
+                DetPro_IdProductoAlt1       :   $(this).find('input[name="DetPro_IdProductoAlt1"]').val(),
+                DetPro_IdProductoAlt2       :   $(this).find('input[name="DetPro_IdProductoAlt2"]').val(),
+                DetPro_NombreProductoBase   :   $(this).find('input[name="DetPro_NombreProductoBase"]').val(),
+                DetPro_NombreProductoAlt1   :   $(this).find('input[name="DetPro_NombreProductoAlt1"]').val(),
+                DetPro_NombreProductoAlt2   :   $(this).find('input[name="DetPro_NombreProductoAlt2"]').val(),
+
+
+                DetPro_ProductoBaseActivo   :   $(this).find('input[name="DetPro_ProductoBaseActivo"]').prop('checked') ? 1 : 0,
+                DetPro_ProductoAlt1Activo   :   $(this).find('input[name="DetPro_ProductoAlt1Activo"]').prop('checked') ? 1 : 0,
+                DetPro_ProductoAlt2Activo   :   $(this).find('input[name="DetPro_ProductoAlt2Activo"]').prop('checked') ? 1 : 0,
+
+
+                IdResponsable        :   $(this).find('input[name="IdResponsable"]').val(),
+                IdSupervisor         :   $(this).find('input[name="IdSupervisor"]').val(),
+                NombreResponsable    :   $(this).find('input[name="NombreResponsable"]').val(),
+                NombreSupervisor     :   $(this).find('input[name="NombreSupervisor"]').val()
+            };
+
+            objetos.push(objeto);
+        });
+
+        return objetos;
+    }
+
+
+
+    function ValidarListaEquipos(datosJSON) {
+        var equiposSinSeleccion = [];
+        var equiposSinColaborador = [];
+
+        for (var i = 0; i < datosJSON.length; i++) {
+            var equipo = datosJSON[i];
+            var tieneSeleccion = false;
+
+            if (equipo.DetPro_ProductoBaseActivo || equipo.DetPro_ProductoAlt1Activo || equipo.DetPro_ProductoAlt2Activo) {
+                tieneSeleccion = true;
+            }
+
+            if (!equipo.DetPro_IdColaborador) {
+                equiposSinColaborador.push(equipo.DetPro_NombreEquipo);
+            }
+
+            if (!tieneSeleccion) {
+                equiposSinSeleccion.push(equipo.DetPro_NombreEquipo);
+            }
+        }
+
+        var errores = [];
+
+        if (equiposSinSeleccion.length > 0) {
+            errores.push("Debe seleccionar al menos un producto base o alternativo para los siguientes equipos: <br>" + equiposSinSeleccion.join(", <br>"));
+        }
+
+        if (equiposSinColaborador.length > 0) {
+            errores.push("Debe asignar un colaborador para los siguientes equipos: <br>" + equiposSinColaborador.join(", <br>"));
+        }
+
+        return errores.length > 0 ? errores.join("<br><br>") : null;
+    }
+
+
+    function AJAXGuardarDetalles(listaDetalles){
+        $.ajax({
+            type       :    "post",
+            url        :    '@Url.Action("ListaGestionarProgramas", "PML")',
+            data       :    JSON.stringify({ objProgramaVM: listaDetalles }),
+            contentType:    "application/json; charset=utf-8",
+        }).done(function (result) {
+
+            if (result.Estatus == true && result.Resultado > 0) {
+                window.location.href= '@Url.Action("BitacoraProgramaMaestro", "PML")';
+            } else {
+                NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', result.Mensaje, "warning");
+            }
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al Guardar los detalles del programa AJAXGuardarDetalles()", "error");
+
+        });
+    }
+
+
+
+    $("#btnRegresar").on("click", function () {
+        if (DatosSinGuardar(ObtenerDatosTablaDetalles())) {
+            swalInit.fire({
+                title: '@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))',
+                html: "<br>Tienes datos sin guardar <br> ¿Deseas Continuar?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+                cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+                buttonsStyling: false,
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            }).then(function (result) {
+                if (result.value) {
+                    window.location.href = '@Url.Action("BitacoraProgramaMaestro", "PML")';
+                }
+            });
+        } else {
+            window.location.href = '@Url.Action("BitacoraProgramaMaestro", "PML")';
+        }
+    });
+
+
+    function DatosSinGuardar(datosJSON) {
+        var equiposSinSeleccion = [];
+
+        for (var i = 0; i < datosJSON.length; i++) {
+            var equipo = datosJSON[i];
+            var tieneSeleccion = false;
+
+            if (equipo.DetPro_IdProductoBase || equipo.DetPro_IdProductoAlt1 || equipo.DetPro_IdProductoAlt2) {
+                tieneSeleccion = true;
+            }
+
+            if (!tieneSeleccion) {
+                equiposSinSeleccion.push(equipo.DetPro_NombreEquipo);
+            }
+        }
+
+
+        return equiposSinSeleccion.length > 0 ? true : false;
+
+    }
+
+
+
+</script>

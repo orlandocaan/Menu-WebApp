@@ -1,0 +1,580 @@
+﻿@model Tuple<BetaClientesVM.Menu.MCarouselVM, List<BetaClientesVM.Menu.MCarouselVM>>
+
+
+@{
+    ViewBag.Title = "TicketsIndex";
+    ViewBag.NombreModulo = "Menu";
+    ViewBag.TituloPagina = "Tickets";
+}
+
+<<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h1 id="H3Colaborador"></h1>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregar"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                    <div class="containeer">
+                        <div class="activities">
+                            <div class="activity-header-new">
+                                <div class="activity-header fleex">
+                                    <h1>Nuevo</h1>
+                                    <div class="menu-icon"></div>
+                                </div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-list">
+                                    <div class="activity">
+                                        <div class="icon"></div>
+                                        <div class="details">
+                                            <h3 class="title">Instalación .net</h3>
+                                            <p class="desig">No se puede instalar</p>
+                                        </div>
+                                        <i class="fas fa-arrow-right status-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="activity-list">
+                                    <div class="activity">
+                                        <div class="icon"></div>
+                                        <div class="details">
+                                            <h3 class="title">Pc no enciende</h3>
+                                            <p class="desig">Hoy cuando llegué la pc no encendía ayuda dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</p>
+                                        </div>
+                                        <i class="fas fa-arrow-right status-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="activity-list">
+                                    <div class="activity">
+                                        <div class="icon"></div>
+                                        <div class="details">
+                                            <h3 class="title">Cable Roto</h3>
+                                            <p class="desig">Cable HDMI se rompió</p>
+                                        </div>
+                                        <i class="fas fa-arrow-right status-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                    <div class="containeer">
+                        <div class="activities">
+                            <div class="activity-header-proggress">
+                                <div class="activity-header fleex">
+                                    <h1>En Progreso</h1>
+                                    <div class="menu-icon"></div>
+                                </div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-list">
+                                    <div class="activity">
+                                        <div class="icon"></div>
+                                        <div class="details">
+                                            <h3 class="title">Instalación .net</h3>
+                                            <p class="desig">No se puede instalar</p>
+                                        </div>
+                                        <i class="fas fa-arrow-right status-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="activity-list">
+                                    <div class="activity">
+                                        <div class="icon"></div>
+                                        <div class="details">
+                                            <h3 class="title">Pc no enciende</h3>
+                                            <p class="desig">Hoy cuando llegué la pc no encendía ayuda dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</p>
+                                        </div>
+                                        <i class="fas fa-arrow-right status-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="activity-list">
+                                    <div class="activity">
+                                        <div class="icon"></div>
+                                        <div class="details">
+                                            <h3 class="title">Cable Roto</h3>
+                                            <p class="desig">Cable HDMI se rompió</p>
+                                        </div>
+                                        <i class="fas fa-arrow-right status-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                    <div class="containeer">
+                        <div class="activities">
+                            <div class="activity-header-closed">
+                                <div class="activity-header fleex">
+                                    <h1>Cerrado</h1>
+                                    <div class="menu-icon"></div>
+                                </div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-list">
+                                    <div class="activity">
+                                        <div class="icon"></div>
+                                        <div class="details">
+                                            <h3 class="title">Instalación .net</h3>
+                                            <p class="desig">No se puede instalar</p>
+                                        </div>
+                                        <i class="fas status-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="activity-list">
+                                    <div class="activity">
+                                        <div class="icon"></div>
+                                        <div class="details">
+                                            <h3 class="title">Pc no enciende</h3>
+                                            <p class="desig">Hoy cuando llegué la pc no encendía ayuda dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</p>
+                                        </div>
+                                        <i class="fas status-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="activity-list">
+                                    <div class="activity">
+                                        <div class="icon"></div>
+                                        <div class="details" onclick="mostrarDetalles()">
+                                            <h3 class="title">Cable Roto</h3>
+                                            <p class="desig">Cable HDMI se rompió</p>
+                                            
+                                        </div>
+                                        <i class="fas status-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@*Basic modal*@
+<div id="ModalCarousel" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"><span id="modalTitle"></span></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row"
+                     @Html.HiddenFor(model => model.Item1.Accion)
+                     @Html.HiddenFor(model => model.Item1.Crsl_IdCarousel)
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        <label class="font-weight-bold">Titulo</label>
+                        @Html.EditorFor(model => model.Item1.Crsl_Title, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Crsl_Title, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        <label class="font-weight-bold">Descripcion</label>
+                        <textarea id="Item1_Crsl_Message" rows="3" cols="3" class="form-control" placeholder="Enter your message here"></textarea>
+                        @Html.ValidationMessageFor(model => model.Item1.Crsl_Message, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        <label class="font-weight-bold">Prioridad</label>
+                        @Html.EditorFor(model => model.Item1.Crsl_Img, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Crsl_Img, "", new { @class = "text-danger" })
+                    </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                    <label class="font-weight-bold">Categoria</label>
+                    @Html.EditorFor(model => model.Item1.Crsl_Img, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                    @Html.ValidationMessageFor(model => model.Item1.Crsl_Img, "", new { @class = "text-danger" })
+                </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatos"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Basic modal*@
+
+<div id="ModalTicket" class="modal fade" >
+    <div class="modal-dialog modal-dialog-centered ">
+        <div class="modal-content">
+            <div class="ticket airline">
+                <div class="top">
+                    <div class="big">
+                        <p class="to">Titulo Ticket 32222222222222</p>
+                    </div>
+                </div>
+                <div class="bottom">
+                    <div class="column">
+                        <div class="row row-1">
+                            <p><span>Nombre</span>Jose Perez Castro</p>
+                            <p class="row--right"><span>----</span>-----</p>
+                        </div>
+                        <div class="row row-2">
+                            <p><span>Categoria</span>Soporte</p>
+                            <p class="row--center"><span>Fecha</span>01/06/2024</p>
+                            <p class="row--right"><span>Hora</span>1:05 PM</p>
+                        </div>
+                        <div class="row row-3">
+                            <p><span>Comentarios</span>------------------------------------------------------------------------------------------</p>
+                        </div>
+                    </div>
+                    <div class="bar--code">
+                        <button type="button" class="btn btn-link rounded-pill center" onclick="cerrar()"><i class="fas fa-times"></i> Cerrar</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+    <style>
+
+        p, h1 {
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ticket {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-color: red;
+        }
+
+        .basic {
+            display: none;
+        }
+
+        .airline {
+            display: block;
+            width: 270px;
+            box-shadow: 5px 5px 30px rgba(221, 50, 50, 0.3);
+            border-radius: 25px;
+            z-index: 3;
+        }
+
+            .airline .top {
+                position: relative;
+                height: 100px;
+                background: #58d307;
+                border-top-right-radius: 25px;
+                border-top-left-radius: 25px;
+                padding: 20px; /* Añadido */
+            }
+
+                .airline .top h1 {
+                    text-transform: uppercase;
+                    font-size: 12px;
+                    letter-spacing: 2;
+                    text-align: center;
+                    position: absolute;
+                    top: 30px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 100%; /* Añadido */
+                }
+
+            .airline .bottom {
+                height: 355px;
+                background: #fff;
+                border-bottom-right-radius: 25px;
+                border-bottom-left-radius: 25px;
+                overflow: auto; /* Añadido */
+            }
+
+        .top .big {
+            position: absolute;
+            top: 20px; /* Ajustado */
+            left: 50%; /* Ajustado */
+            transform: translateX(-50%); /* Ajustado */
+            font-size: 25px; /* Ajustado */
+            font-weight: 600;
+            line-height: 1.2; /* Ajustado */
+            color: #fff; /* Añadido */
+            text-align: center; /* Añadido */
+            width: calc(100% - 40px); /* Añadido */
+        }
+
+
+
+            .top .big .to {
+                color: black;
+            }
+
+        .top--side {
+            position: absolute;
+            right: 35px;
+            top: 110px;
+            text-align: right;
+        }
+
+            .top--side i {
+                font-size: 25px;
+                margin-bottom: 18px;
+            }
+
+            .top--side p {
+                font-size: 10px;
+                font-weight: 700;
+            }
+
+                .top--side p + p {
+                    margin-bottom: 8px;
+                }
+
+        .bottom p {
+            display: flex;
+            flex-direction: column;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+            .bottom p span {
+                font-weight: 400;
+                font-size: 11px;
+                color: #6c6c6c;
+            }
+
+        .column {
+            margin: 0 auto;
+            width: 80%;
+            padding: 2rem 0;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .row--right {
+            text-align: right;
+        }
+
+        .row--center {
+            text-align: center;
+        }
+
+        .row-2 {
+            margin: 30px 0 60px 0;
+            position: relative;
+        }
+
+            .row-2::after {
+                content: "";
+                position: absolute;
+                width: 100%;
+                bottom: -30px;
+                left: 0;
+                background: #000;
+                height: 1px;
+            }
+
+        .bar--code {
+            text-align: center; /* Alineación del contenido al centro */
+            margin-top: 20px; /* Espacio entre el contenido superior y el botón */
+        }
+
+        .containeer {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fleex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .activities {
+            background: #ffffff;
+            padding: 5rem 3rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 10px 30px 50px #c8ccd3;
+            position: relative;
+        }
+
+        .activity-header-new {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #78DF78;
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .activity-header-proggress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #FBEE21;
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .activity-header-closed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #FB4821;
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .activity-header {
+            padding: 1rem 3rem;
+        }
+
+            .activity-header h1 {
+                font-size: 1.7rem;
+                color: #FDFDFD;
+                font-weight: bold;
+            }
+
+        .activity-content {
+            margin-top: 1rem; /* Add sufficient margin to push content below the header */
+        }
+
+        .activity-list {
+            width: 100%;
+        }
+
+        .activity {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Asegura que los elementos estén distribuidos */
+            padding: 1.5rem 0.75rem;
+            border-radius: 1rem;
+            background: #ffffff;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+            .activity:hover {
+                box-shadow: 20px;
+                transform: translateX(4rem);
+            }
+
+            .activity .icon {
+                margin-right: 1rem;
+            }
+
+            .activity .details {
+                flex-grow: 1;
+                max-width: calc(100% - 2.5rem); /* Ajusta el ancho para dejar espacio al icono */
+            }
+
+        .details h3,
+        .details p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .details h3 {
+            margin-bottom: 0; /* Elimina margen inferior del h3 */
+        }
+
+        .details p {
+            margin-top: 0; /* Elimina margen superior del p */
+        }
+
+        .activity .title {
+            font-size: 1.3rem;
+            line-height: 2.4rem;
+            font-weight: bold;
+        }
+
+        .activity .desig {
+            color: #b4b4bb;
+            font-size: 0.7rem;
+            max-width: 170px; /* Set a maximum width */
+            max-height: 50px; /* Set a maximum height */
+            overflow: hidden; /* Hide overflowing content */
+            text-overflow: ellipsis; /* Add ellipsis at the end */
+            white-space: nowrap; /* Prevent text from wrapping */
+        }
+
+        .status-icon {
+            font-size: 1.5rem; /* Personaliza el tamaño */
+            color: darkslategrey; /* Personaliza el color */
+            margin-left: 1rem; /* Espacio entre detalles y icono */
+        }
+    </style>
+
+
+    <script>
+        
+
+        $("#btnAgregar").on("click", function () {
+            const accion = 0;
+
+            ModalAgregar(accion);
+            var modalTitle = document.getElementById('modalTitle');
+
+            modalTitle.innerText = "Generar Ticket";
+        });
+
+        function ModalAgregar(accion) {
+            $("#Item1_Accion").val(accion);
+            $("#Item1_Crsl_IdCarousel").val('');
+            // Limpiar el input de texto para el modal de menu
+            $("#Item1_Crsl_Title").val('');
+            $("#Item1_Crsl_Message").val('');
+            $("#Item1_Crsl_Img").val('');
+            $("#ModalCarousel").modal("show");
+
+        }
+
+        $("#btnAgregar").on("click", function () {
+            const accion = 0;
+
+            ModalAgregar(accion);
+            var modalTitle = document.getElementById('modalTitle');
+
+            modalTitle.innerText = "Generar Ticket";
+        });
+
+        function mostrarDetalles() {
+
+            $("#ModalTicket").modal("show");
+        }
+
+        // Función para cerrar el modal
+        function cerrar() {
+            $('#ModalTicket').modal('hide');
+        }
+
+        
+    </script>

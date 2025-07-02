@@ -1,0 +1,395 @@
+﻿@model Tuple<BetaClientesVM.Menu.MMenuVM, List<BetaClientesVM.Menu.MMenuVM>, List<BetaClientesVM.Menu.MMenuVM>>
+
+
+@{
+    ViewBag.Title = "MenuIndex";
+    ViewBag.NombreModulo = "Menu";
+    ViewBag.TituloPagina = "Menus";
+}
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h3></h3>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregar"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+                </div>
+
+                <div class="col-xs-2 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-6">
+
+                    <ul class="nav nav-sidebar" data-nav-type="accordion">
+
+                        @if (Model.Item2 != null)
+                        {
+                            foreach (var padre in Model.Item2)
+                            {
+                                <li class="nav-item" >
+                                    <p id="padreItem" href="#" class="nav-link " onclick="GuardarDatos(this)" data-datos="@Json.Encode(padre)">
+                                        <i class="@padre.Icon"></i>
+                                        <span class="text-black">
+                                            @Html.DisplayFor(modelItem => padre.Item)
+                                            <button class="btn btn-sm btn-yellow rounded-pill text-white ml-3 mr-1" onclick="EditarMenu(40)" title="Editar">
+                                                <i class="fa fa-edit fa-1x" style="vertical-align: middle;"></i>
+                                            </button>
+
+                                            <button class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacion(@Json.Encode(Model.Item3))" title="Eliminar">
+                                                <i class="fas fa-trash fa-1x"></i>
+                                            </button>
+                                        </span>
+                                    </p>
+                                    <ul class="nav nav-group-sub" data-submenu-title="@padre.Item" >
+                                        @if (Model.Item3 != null)
+                                        {
+                                            foreach (var hijo in Model.Item3)
+                                            {
+                                                if (padre.Item == hijo.Parent)
+                                                {
+                                                    <li id="hijoItem" class="nav-item mb-2 ml-4" onclick="GuardarDatos(this)" data-datos="@Json.Encode(hijo)">
+                                                        <span>
+                                                            @Html.DisplayFor(modelItem => hijo.Item) -
+                                                            @Html.DisplayFor(modelItem => hijo.Descripcion)
+                                                        </span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                            }
+
+                        }
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@*Basic modal*@
+<div id="ModalMenu" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"><span id="modalTitle"></span></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Item1.Accion)
+                    @Html.HiddenFor(model => model.Item1.Id)
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.Item, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.Item, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Item, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.Descripcion, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.Descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Descripcion, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        <label class="font-weight-bold">Tipo</label>
+                        <div class=" ml-3 ">
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="cr-i-l" id="cr_l_i_s" value="1">
+                                <label class="form-check-label" for="cr_l_i_s">Folder</label>
+                            </div>
+
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="cr-i-l" id="cr_l_i_u" value="2">
+                                <label class="form-check-label" for="cr_l_i_u">Documento</label>
+                            </div>
+                            @Html.HiddenFor(model => model.Item1.Type)
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        <label class="font-weight-bold">Folder</label>
+                        @Html.DropDownListFor(model => model.Item1.Parent, ViewBag.cmbFolder as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.Item1.Parent, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.FunctionId, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.Item1.FunctionId, ViewBag.cmbFuncion as IEnumerable<SelectListItem>, "Selecciona una función", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.Item1.FunctionId, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.Icon, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.Icon, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        <span class="blockquote-footer">(Si no ingresa el código del icono se asignara uno por defecto)</span>
+                        @Html.ValidationMessageFor(model => model.Item1.Icon, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatos"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Basic modal*@
+
+
+<script>
+    var datosTemp;
+    $("#btnAgregar").on("click", function () {
+        const accion = 39;
+
+        ModalAgregar(accion);
+        var modalTitle = document.getElementById('modalTitle');
+
+        modalTitle.innerText = "Agregar Menu";
+    });
+
+    function ModalAgregar(accion) {
+        $("#Item1_Accion").val(accion);
+        $("#Item1_Id").val('');
+        // Limpiar el input de texto para el modal de menu
+        $("#Item1_Item").val('');
+        $("#Item1_Descripcion").val('');
+        $("#Item1_Type").val('');
+        $("#Item1_Parent").val('');
+        $("#Item1_FunctionId").val('');
+        $("#Item1_Icon").val('');
+        $("input[name='cr-i-l']").prop('checked', false);
+        $("#ModalMenu").modal("show");
+
+    }
+
+    $(document).ready(function () {
+        // Cuando cambia la selección de los radio botones
+        $('input[type="radio"]').change(function () {
+            // Verificar cuál radio botón está seleccionado
+            var tipoSeleccionado = $('input[name="cr-i-l"]:checked').val();
+
+            $('#Item1_Type').val(tipoSeleccionado);
+        });
+    });
+
+    function validarCampos() {
+        item = $("#Item1_Item").val(),
+        descripcion = $("#Item1_Descripcion").val(),
+        type = $("#Item1_Type").val(),
+        parent = $("#Item1_Parent").val(),
+        functionId = $("#Item1_FunctionId").val()
+
+        if (!item) {
+            Swal.fire({
+                text: "Ingrese el nombre.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!descripcion) {
+            Swal.fire({
+                text: "Ingrese la descripción.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!type) {
+            Swal.fire({
+                text: "Seleccione el tipo.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        } if (!parent) {
+            Swal.fire({
+                text: "Seleccione el folder.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        } if (!functionId) {
+            Swal.fire({
+                text: "Seleccione la función.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+
+        return true;
+    }
+
+    $("#btnGuardarDatos").on("click", function () {
+        if (validarCampos()) {
+            AJAXGuardarDatos(ObtenerDatos());
+        } else {
+            console.log("Error");
+        }
+
+    });
+
+    function AJAXGuardarDatos(objMenu) {
+
+        console.log(objMenu);
+
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarMenu", "Menu")',
+            data: JSON.stringify({ objMenu: objMenu }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+
+            $("#ModalMenu").modal("hide");
+            location.reload();
+
+            //SI OCURRE UN ERROR
+            if (result.resultado == 0) {
+                NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+            }
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+    function ObtenerDatos() {
+        let objMenu = {
+            Accion: $("#Item1_Accion").val(),
+            Id: $("#Item1_Id").val(),
+            // Limpiar el input de texto para el modal de menu
+            Item: $("#Item1_Item").val(),
+            Descripcion: $("#Item1_Descripcion").val(),
+            Type: $("#Item1_Type").val(),
+            Parent: $("#Item1_Parent").val() == "Tipo Folder" ? "" : $("#Item1_Parent").val() ,
+            FunctionId: $("#Item1_FunctionId").val(),
+            Icon: $("#Item1_Icon").val() ?? "",
+        };
+
+        return objMenu;
+    }
+
+    function EditarMenu(accion) {
+        var datos = ObtenerTemp();
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+
+        $("#Item1_Accion").val(accion);
+        $("#Item1_Id").val(row.Id);
+        // Limpiar el input de texto para el modal de menu
+        $("#Item1_Item").val(row.Item);
+        $("#Item1_Descripcion").val(row.Descripcion);
+        $("#Item1_Type").val(row.Type);
+        $("#Item1_Parent").val(row.Parent);
+        $("#Item1_FunctionId").val(row.FunctionId);
+        $("#Item1_Icon").val(row.Icon);
+
+        if (!row.Parent || row.Parent === "") {
+            $("#Item1_Parent").val("Tipo Folder");
+        } else {
+            $("#Item1_Parent").val(row.Parent);
+        }
+
+        if (row.Type === 1) {
+            $("#cr_l_i_s").prop("checked", true);
+        } else if (row.Type === 2) {
+            $("#cr_l_i_u").prop("checked", true);
+        }
+        var modalTitle = document.getElementById('modalTitle');
+
+        modalTitle.innerText = "Editar Menu";
+    
+        $("#ModalMenu").modal("show");
+    }
+
+    function MensajeEliminacion(item3) {
+
+        var datos = ObtenerTemp();
+        row = JSON.parse(datos);
+
+        if (row.Type == 1 && item3 != null) {
+            // Iterar sobre la matriz de objetos
+            for (var i = 0; i < item3.length; i++) {
+                // Verificar si la propiedad "Parent" del objeto contiene la cadena "Planta"
+                if (item3[i].Parent && typeof item3[i].Parent === 'string' && item3[i].Parent.includes(row.Item)) {
+                    Swal.fire({
+                        text: "El folder aún contiene documentos.",
+                        icon: "warning",
+                        customClass: {
+                            confirmButton: 'btn btn-primary rounded-pill'
+                        }
+                    });
+                    return;
+                }
+            }
+        }
+
+        swalInit.fire({
+            title: '@ViewBag.TituloPagina',
+            html: "<br>Se eliminara <b>" + row.Item + "</b><br> ¿Deseas Continuar?",
+             icon: 'question',
+             showCancelButton: true,
+             confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+             cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+             buttonsStyling: false,
+             customClass: {
+                 confirmButton: 'btn btn-primary rounded-pill',
+                 cancelButton: 'btn btn-danger rounded-pill'
+             }
+        }).then(function (result) {
+             if (result.value) {
+                 let objMenu = {
+                     Accion: 41,
+                     Id: row.Id
+
+                 };
+                 AJAXGuardarDatos(objMenu)
+             }
+        });
+    }
+
+    function GuardarDatos(elemento) {
+        
+        var links = document.getElementsByClassName('nav-link');
+        for (var i = 0; i < links.length; i++) {
+            links[i].style.backgroundColor = ''; // Resetear el color de fondo
+        }
+
+        // Luego, eliminamos la clase 'selected' de todos los elementos con la clase 'nav-item'
+        var items = document.getElementsByClassName('nav-item');
+        for (var i = 0; i < items.length; i++) {
+            items[i].style.backgroundColor = ''; // Resetear el color de fondo
+        }
+
+        // Finalmente, cambiamos el color de fondo del elemento clicado
+        elemento.style.backgroundColor = '#f0f0f0';
+
+        datosTemp = elemento.getAttribute('data-datos');
+    }
+
+    function ObtenerTemp() {
+        return datosTemp;
+    }
+</script>
+
+

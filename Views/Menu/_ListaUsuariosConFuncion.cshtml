@@ -1,0 +1,70 @@
+﻿<div class="input-group">
+    <input class="filter form-control" id="filterInputAsignados" type="text" placeholder="Filter">
+    <div class="input-group-append" id="btnLimpiarFiltroContainerAsignados" style="display: none;">
+        <button type="button" class="btn btn-outline-secondary" id="btnLimpiarFiltroAsignados">
+            <i class="icon-cross2"></i>
+        </button>
+    </div>
+</div>
+<br />
+<div class="btn-group buttons" style="width: 100%;">
+
+    <button type="button" class="btn btn-outline-secondary" id="btnEnviarOpcionesAsignadas">
+        <i class="icon-arrow-left7"></i>
+    </button>
+    <button type="button" class="btn btn-outline-secondary" id="btnEnviarTodasAsignadas">
+        <i class="icon-arrow-left7"></i>
+        <i class="icon-arrow-left7"></i>
+    </button>
+</div>
+<select multiple="multiple" id="SelectAsignados" class="form-control" name="duallistbox_helper1" style="height: 200px; min-height: 200px;" >
+    @if (Model != null)
+    {
+        foreach (var user in Model)
+        {
+            <option value="@user.UserId">@(user.UserName + " - " + user.Name + " " + user.LastName)</option>
+        }
+    }
+</select>
+
+<script>
+    $(document).ready(function () {
+        $("#filterInputAsignados").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#SelectAsignados option").each(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+
+            // Mostrar u ocultar el botón de limpiar filtro
+            if (value.trim() !== '') {
+                $("#btnLimpiarFiltroContainerAsignados").show();
+            } else {
+                $("#btnLimpiarFiltroContainerAsignados").hide();
+            }
+        });
+
+        $("#btnLimpiarFiltroAsignados").on("click", function () {
+            $("#filterInputAsignados").val("");
+            $("#SelectAsignados option").show();
+            $(this).parent().hide(); // Ocultar el contenedor del botón
+        });
+
+        $("#btnEnviarOpcionesAsignadas").on("click", function () {
+            var opcionesSeleccionadas = $("#SelectAsignados option:selected");
+            opcionesSeleccionadas.each(function () {
+                var opcion = $(this).clone();
+                $("#SelectSinAsignar").append(opcion);
+                $(this).remove();
+            });
+        });
+
+        $("#btnEnviarTodasAsignadas").on("click", function () {
+            var todasOpciones = $("#SelectAsignados option");
+            todasOpciones.each(function () {
+                var opcion = $(this).clone();
+                $("#SelectSinAsignar").append(opcion);
+            });
+            $("#SelectAsignados").empty();
+        });
+    });
+</script>

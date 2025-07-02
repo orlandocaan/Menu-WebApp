@@ -1,0 +1,46 @@
+﻿@model IEnumerable<BetaClientesVM.PML.PMLCalificacionesVM>
+
+    <table class="table datatable-basic small coloresTablas" width="100%" id="miTabla2">
+        <thead>
+            <tr>
+                <th>Curso</th>
+                <th>Calificaciones</th>
+                <th>Archivo</th>
+                <th>Fecha de Vigencia</th>
+                <th>Fecha del Curso</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+            foreach (var row in Model)
+            {
+            // Calcula los días restantes hasta la fecha de vigencia
+            var diasRestantes = (row.Cal_FechaVigencia - DateTime.Now).Days;
+
+            // Agrega la clase CSS si faltan 10 días o menos para que venza
+            string claseFila = diasRestantes <= 10 ? "bg-danger" : "";
+
+            <tr class="@claseFila" id="@row.Cal_IdColaborador" onclick="obtenerIdCurso(this)">
+                <td id="nameCurso">@Html.DisplayFor(modelItem => row.NombreDelCurso)</td>
+                <td>@Html.DisplayFor(modelItem => row.Cal_Calificacion)</td>
+                <td>@Html.DisplayFor(modelItem => row.Cal_NombreDoc)</td>
+                <td>@Html.DisplayFor(modelItem => row.Cal_FechaVigenciaFormateada)</td>
+                <td>@Html.DisplayFor(modelItem => row.Cal_FechaCursoFormateada)</td>
+            </tr>
+            }
+            }
+        </tbody>
+    </table>
+    
+    <script>
+        function obtenerIdCurso(fila) {
+            var idCol = fila.id;
+            console.log(idCol);
+            @*@Url.Action("CalificacionesCursos", "PML", new
+                                                                                 {
+                                                                                     idColaborador= idCol,
+                                                                                 })*@
+        }
+    </script>

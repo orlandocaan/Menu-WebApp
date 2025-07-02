@@ -1,0 +1,89 @@
+﻿@model IEnumerable<BetaClientesVM.PML.PMLColaboradoresVM>
+
+<table class="table datatable-basic small coloresTablas" width="100%" id="miTabla">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Puesto</th>
+            <th class="text-center">Curso</th>
+            <th class="text-center">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @if (Model != null)
+        {
+            foreach (var row in Model)
+            {
+
+                <tr class="trId" id="@row.Col_IdColaborador" onclick="seleccionarRegistro('@row.Col_IdColaborador', '@row.Col_Nombre')">
+                    <td>@Html.DisplayFor(modelItem => row.Col_Nombre)</td>
+                    <td>@Html.DisplayFor(modelItem => row.Pue_Nombre)</td>
+                    <td class="text-center" onclick="event.stopPropagation();">
+                        <div class="btn-group" role="group">
+                            <a class="btn btn-sm btn-primary rounded-pill text-white mr-1" href="@Url.Action("CalificacionesCursos", "PML", new
+                                                                                            {
+                                                                                                idColaborador= row.Col_IdColaborador,
+                                                                                                nombreColaborador = row.Col_Nombre
+                                                                                            })" title="Editar" onclick="event.stopPropagation();">
+                                <i class="fas fa-plus-circle fa-1x"></i>
+                            </a>
+                        </div>
+                    </td>
+                    <td class="text-center" onclick="event.stopPropagation();">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="DatosModalColaboradores('@Json.Encode(row)', '2'); event.stopPropagation();" title="Editar">
+                                <i class="fa fa-edit fa-1x"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacion('@Json.Encode(row)'); event.stopPropagation();" title="Eliminar">
+                                <i class="fas fa-trash fa-1x"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+
+
+<h4 class="mt-2" id="nameCol"></h4>
+
+<div class="calificacionesContainer"></div>
+
+<script>
+    function seleccionarRegistro(idColaborador, nombreColaborador) {
+            // Aquí puedes manejar la lógica para utilizar el id del registro seleccionado
+            // Remover la clase selected-row de todas las filas
+            $('.trId').removeClass('selected-row');
+
+            // Agregar la clase selected-row a la fila seleccionada
+            $('#' + idColaborador).addClass('selected-row');
+
+
+            $.ajax({
+                type: "get",
+                url: '@Url.Action("DLCalificaciones", "PML")',
+                data: { idColaborador: idColaborador },
+                contentType: "application/json; charset=utf-8",
+            }).done(function (result) {
+
+                $('.calificacionesContainer').html(result);
+
+            }).fail(function (error) {
+                NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de calificaciones.", "error");
+            });
+            
+            $('#nameCol').text(nombreColaborador);
+        }
+
+</script>
+
+<style>
+    /* Otros estilos aquí */
+
+    .selected-row {
+        background-color: #f0f0f0; /* Cambia este color por el que desees */
+    }
+</style>

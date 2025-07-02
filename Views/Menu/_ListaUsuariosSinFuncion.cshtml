@@ -1,0 +1,75 @@
+﻿@model IEnumerable<BetaClientesVM.Menu.MUserVM>
+
+<div class="input-group">
+    <input class="filter form-control" type="text" id="filterInput" placeholder="Filter">
+    <div class="input-group-append" id="btnLimpiarFiltroContainer" style="display: none;">
+        <button type="button" class="btn btn-outline-secondary" id="btnLimpiarFiltro">
+            <i class="icon-cross2"></i>
+        </button>
+    </div>
+</div>
+<br />
+<div class="btn-group buttons" style="width: 100%;">
+    <button type="button" class="btn btn-outline-secondary" id="btnEnviarTodas">
+        <i class="icon-arrow-right7"></i>
+        <i class="icon-arrow-right7"></i>
+    </button>
+    <button type="button" class="btn btn-outline-secondary" id="btnEnviarOpciones">
+        <i class="icon-arrow-right7"></i>
+    </button>
+</div>
+<select multiple="multiple" id="SelectSinAsignar" class="form-control" style="height: 200px; min-height: 200px; ">
+    @if (Model != null)
+    {
+        foreach (var user in Model)
+        {
+            <option value="@user.UserId">@(user.UserName + " - " + user.Name + " " + user.LastName)</option>
+        }
+    }
+</select>
+
+<script>
+    $(document).ready(function () {
+        // Función para filtrar opciones según el texto ingresado en el campo de búsqueda
+        $("#filterInput").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#SelectSinAsignar option").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+
+            // Mostrar u ocultar el botón de limpiar filtro según si hay texto en el campo de búsqueda
+            if (value.trim() !== '') {
+                $("#btnLimpiarFiltroContainer").show();
+            } else {
+                $("#btnLimpiarFiltroContainer").hide();
+            }
+        });
+
+        // Función para limpiar el campo de búsqueda
+        $("#btnLimpiarFiltro").on("click", function () {
+            $("#filterInput").val("");
+            $("#SelectSinAsignar option").show();
+            $(this).parent().hide(); // Ocultar el contenedor del botón
+        });
+
+        // Función para mover opciones seleccionadas al select principal
+        $("#btnEnviarOpciones").on("click", function () {
+            var opcionesSeleccionadas = $("#SelectSinAsignar option:selected");
+            opcionesSeleccionadas.each(function () {
+                var opcion = $(this).clone(); // Clonar la opción seleccionada
+                $("#SelectAsignados").append(opcion); // Agregar la opción al select principal
+                $(this).remove(); // Eliminar la opción del select en la vista parcial
+            });
+        });
+
+        // Función para mover todas las opciones al select principal
+        $("#btnEnviarTodas").on("click", function () {
+            var todasOpciones = $("#SelectSinAsignar option");
+            todasOpciones.each(function () {
+                var opcion = $(this).clone(); // Clonar la opción
+                $("#SelectAsignados").append(opcion); // Agregar la opción al select principal
+            });
+            $("#SelectSinAsignar").empty(); // Limpiar el select en la vista parcial
+        });
+    });
+</script>

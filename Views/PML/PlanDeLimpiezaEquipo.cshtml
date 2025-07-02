@@ -1,0 +1,761 @@
+﻿@model BetaClientesVM.PML.PMLFrecuenciaVM
+@{
+    ViewBag.Title = "Plan de Limpieza de Equipos";
+    ViewBag.NombreModulo = "PML";
+    ViewBag.TituloPagina = "Plan de Limpieza de Equipos";
+
+    if (ViewBag.MensajeError != null)
+    {
+        <script>
+        $(document).ready(function () {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', '@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.MensajeError))', "warning");
+        });
+        </script>
+    }
+}
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
+                        <h5 class="card-title">@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.NombreEquipo))</h5>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 text-right">
+                        <a href="@Url.Action("EquiposIndex", "PML")" class="btn btn-sm btn-secondary rounded-pill">
+                            <i class="fas fa-arrow-circle-left"></i> Regresar
+                        </a>
+
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregarProducto">
+                            <i class="fas fa-plus-circle fa-1x"></i> Agregar
+                        </button>
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divListaFrecuencia">
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Basic modal -->
+<div id="ModalFrecuencia" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold" ><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> <label id="txtTituloModal"></label> </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Accion)
+                    @Html.HiddenFor(model => model.Frec_IdEquipo)
+                    @Html.HiddenFor(model => model.Frec_IdFrecuencia)
+                    @Html.HiddenFor(model => model.Frec_IdFrecuenciaPadre )
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Frec_IdTipoProducto, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.Frec_IdTipoProducto, ViewBag.cmbTipoProductos as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control " })
+                        @Html.ValidationMessageFor(model => model.Frec_IdTipoProducto, "", new { @class = "text-danger" })
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Frec_IdProducto, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.Frec_IdProducto, Enumerable.Empty<SelectListItem>(), "Selecciona una opción", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.Frec_IdProducto, "", new { @class = "text-danger" })
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Frec_Concentracion, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Frec_Concentracion, new { htmlAttributes = new { @type="number", @step="0.00", @class = "form-control text-right", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Frec_Concentracion, "", new { @class = "text-danger" })
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Frec_IdUDM, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.Frec_IdUDM, ViewBag.cmbUnidadesDeMedida as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control " })
+                        @Html.ValidationMessageFor(model => model.Frec_IdUDM, "", new { @class = "text-danger" })
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Frec_IdTipoLimpieza, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.Frec_IdTipoLimpieza, ViewBag.cmbTiposLimpieza as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control " })
+                        @Html.ValidationMessageFor(model => model.Frec_IdTipoLimpieza, "", new { @class = "text-danger" })
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2" id="divDescripcionFrecuencia">
+                        @Html.LabelFor(model => model.Frec_DescripcionFrecuencia, htmlAttributes: new { @class = "font-weight-bold" })
+                        <div style="position: relative;" class="periodicidad">
+                            @Html.EditorFor(model => model.Frec_DescripcionFrecuencia, new { htmlAttributes = new { @class = "form-control", @placeholder="Da click aquí", @autocomplete = "off", @readonly="true" } })
+                            <i class="fas fa-calendar-alt" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                        </div>
+                        @Html.ValidationMessageFor(model => model.Frec_DescripcionFrecuencia, "", new { @class = "text-danger" })
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatosFrecuencia"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Basic modal -->
+
+
+
+
+
+<!-- Modal de periodicidad -->
+<div id="ModalPeriodicidad" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header headerModalSecondary">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;" > Periodicidad  </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-2">
+                        @Html.LabelFor(model => model.Frec_Frecuencia, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.Frec_Frecuencia, new List<SelectListItem>
+                        {
+                            new SelectListItem { Text = "Diario"                , Value = "diario"  },
+                            new SelectListItem { Text = "Semanal"               , Value = "semanal" },
+                            new SelectListItem { Text = "Quincenal"             , Value = "quincenal" },
+                            new SelectListItem { Text = "Mensual"               , Value = "mensual" },
+                            new SelectListItem { Text = "Bimestral"             , Value = "bimestral" },
+                            new SelectListItem { Text = "Trimestral"            , Value = "trimestral" },
+                            new SelectListItem { Text = "Cuatrimestral"         , Value = "cuatrimestral" },
+                            new SelectListItem { Text = "Semestral"             , Value = "semestral" },
+                            new SelectListItem { Text = "Anual"                 , Value = "anual" }
+                        }, "Selecciona una opción", new { @class = "form-control" })
+
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-3" id="divDiasAplicacion" style="display: none;">
+                        @Html.LabelFor(model => model.Frec_DiasSemana, htmlAttributes: new { @class = "font-weight-bold" })
+                        <table width="100%">
+                            <tbody>
+                                <tr>
+                                    <td> <input type="checkbox" class="diasSemana" name="diasSemana" id="domingo" value="1"> Dom </td>
+                                    <td> <input type="checkbox" class="diasSemana" name="diasSemana" id="lunes" value="2"> Lun </td>
+                                    <td> <input type="checkbox" class="diasSemana" name="diasSemana" id="martes" value="3"> Mar </td>
+                                    <td> <input type="checkbox" class="diasSemana" name="diasSemana" id="miercoles" value="4"> Mie </td>
+                                    <td> <input type="checkbox" class="diasSemana" name="diasSemana" id="jueves" value="5"> Jue </td>
+                                    <td> <input type="checkbox" class="diasSemana" name="diasSemana" id="viernes" value="6"> Vie </td>
+                                    <td> <input type="checkbox" class="diasSemana" name="diasSemana" id="sabado" value="7"> Sab </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-lg-6 col-xl-6 mt-3" id="divDiaAplicacion" style="display: none;">
+                        @Html.LabelFor(model => model.Frec_DiaAplicacion, htmlAttributes: new { @class = "font-weight-bold" })
+                        <select class="form-control" name="Frec_DiaAplicacion" id="Frec_DiaAplicacion">
+                            <option value="" selected disabled>Selecciona una opción</option>
+                            @for (int dia = 1; dia <= 31; dia++)
+                            {
+                                var diaFormateado = dia.ToString("00");
+                                <option value="@diaFormateado">@diaFormateado</option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-lg-6 col-xl-6 mt-3" id="divMesAplicacion" style="display: none;">
+                        @Html.LabelFor(model => model.Frec_MesAplicacion, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.Frec_MesAplicacion, new List<SelectListItem>
+                        {
+                            new SelectListItem { Text   = "Enero"           , Value = "01" },
+                            new SelectListItem { Text   = "Febrero"         , Value = "02" },
+                            new SelectListItem { Text   = "Marzo"           , Value = "03" },
+                            new SelectListItem { Text   = "Abril"           , Value = "04" },
+                            new SelectListItem { Text   = "Mayo"            , Value = "05" },
+                            new SelectListItem { Text   = "Junio"           , Value = "06" },
+                            new SelectListItem { Text   = "Julio"           , Value = "07" },
+                            new SelectListItem { Text   = "Agosto"          , Value = "08" },
+                            new SelectListItem { Text   = "Septiembre"      , Value = "09" },
+                            new SelectListItem { Text   = "Octubre"         , Value = "10" },
+                            new SelectListItem { Text   = "Noviembre"       , Value = "11" },
+                            new SelectListItem { Text   = "Diciembre"       , Value = "12" }
+                        }, "Selecciona una opción", new { @class = "form-control" })
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " onclick="ObtenerFrecuencia();"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal de periodicidad -->
+
+
+
+
+
+
+<script>
+
+    $("#btnAgregarProducto").on("click", function () {
+        const accion = 2;
+
+        var datosModal = JSON.stringify({
+            Frec_IdEquipo: parseInt('@Model.Frec_IdEquipo'),
+            Frec_IdFrecuencia: "",
+            Frec_IdFrecuenciaPadre: "",
+            Frec_IdTipoProducto: "",
+            Frec_IdProducto: "",
+            Frec_Concentracion: 0.00,
+            Frec_IdUDM: "",
+            Frec_IdTipoLimpieza: "",
+            Frec_DescripcionFrecuencia: "",
+            Frec_Frecuencia: "",
+            Frec_DiasSemana: "",
+            Frec_DiaAplicacion: "",
+            Frec_MesAplicacion: ""
+        });
+
+        DatosFormulario(datosModal, accion);
+
+    });
+
+
+    function AJAXConsultarFrecuencias()
+    {
+        const idEquipo = parseInt(@Model.Frec_IdEquipo);
+        $.ajax({
+            type        : "get",
+            url         : '@Url.Action("ConsultarFrecuencias", "PML")',
+            data        : { idEquipo: idEquipo },
+            contentType : "application/json; charset=utf-8",
+        }).done(function (result) {
+
+            $("#divListaFrecuencia").html(result);
+            CargarTabla();
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al consultar la lista de las Frecuencias.", "error");
+
+        });
+    }
+
+
+    AJAXConsultarFrecuencias();
+
+
+    $("#Frec_IdTipoProducto").on("change", function () {
+
+        AJAXConsultarProductos(parseInt($(this).val()), "");
+
+    });
+
+
+
+function AJAXConsultarProductos(idTipoProducto, valorSeleccionado) {
+    // Asegurarse de que idTipoProducto sea un número
+    idTipoProducto = parseInt(idTipoProducto);
+
+    $.ajax({
+        async: true,
+        type: "get",
+        url: '@Url.Action("ObtenerDatosComboProducto", "PML")',
+        data: { idTipoProducto: idTipoProducto },
+    }).done(function (result) {
+        var $dropdown = $('#Frec_IdProducto');
+        $dropdown.empty();
+
+        $dropdown.append($('<option>', {
+            value: '',
+            text: 'Selecciona una opción'
+        }));
+
+        if (result.length > 0) {
+            $.each(result, function (index, producto) {
+                $dropdown.append($('<option>', {
+                    value: producto.ValorCadena,
+                    text: producto.TextoOpcion
+                }));
+            });
+        }
+
+        // Seleccionar automáticamente el valor especificado
+        $dropdown.val(valorSeleccionado);
+
+    }).fail(function (error) {
+        console.error("Ocurrió un error al consultar la lista de las Frecuencias:", error);
+        NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al consultar la lista de las Frecuencias. Por favor, inténtelo de nuevo más tarde.", "error");
+    });
+}
+
+
+
+    //cuando dal clic sobre el campo de la descripcion de la frecuencia
+    $(".periodicidad").on("click", function () {
+
+        //LimpiarCamposModalFrecuencia();
+
+        $("#ModalPeriodicidad").modal("show");
+    });
+
+
+    //Limpiar los campos al abrir el modal de Periodicidad
+    function LimpiarCamposModalFrecuencia() {
+        $(".diasSemana").prop("checked", false);//limpiar dias de semana
+        $("#Frec_Frecuencia").val("");//limpiar frecuencia
+        $("#Frec_DiaAplicacion").val("");//limpiar dia de aplicación
+        $("#Frec_MesAplicacion").val("");//limpiar mes de aplicación
+        $("#Frec_DescripcionFrecuencia").val("");
+        $("#Frec_DiasSemana").val("");
+
+
+        $("#divDiasAplicacion").css("display", "none");//ocultar dias de la Semana
+        $("#divDiaAplicacion").css("display", "none");//ocultar día de limpieza
+        $("#divMesAplicacion").css("display", "none");//ocultar mes de limpieza
+
+    }
+
+
+    //Cuando seleccionan un elemento del combo de Frecuencias
+    $("#Frec_Frecuencia").on("change", function () {
+        AccionesModalFrecuencias($(this).val());
+    });
+
+
+    //Cuando seleccionan la periodidicdad
+    function AccionesModalFrecuencias(valorPeriodicidad) {
+        $(".diasSemana").prop("checked", false);//limpiar dias de semana
+        $("#Frec_DiaAplicacion").val("");//limpiar dia de aplicación
+        $("#Frec_MesAplicacion").val("");//limpiar dia de aplicación
+
+
+        if (valorPeriodicidad.trim() == "diario" || valorPeriodicidad.trim() == "semanal") {
+
+            $("#divDiasAplicacion").css("display", "block");//mostrar dias de la Semana
+            $("#divDiaAplicacion").css("display", "none");//ocultar día de limpieza
+            $("#divMesAplicacion").css("display", "none");//ocultar mes de limpieza
+
+        } else {
+
+            $("#divDiasAplicacion").css("display", "none");//ocultar dias de la Semana
+
+            if (valorPeriodicidad.trim() === "quincenal" || valorPeriodicidad.trim() === "anual") {
+
+                $("#divDiaAplicacion").css("display", "block"); // mostrar día de limpieza
+                $("#divMesAplicacion").css("display", "block"); // mostrar mes de limpieza
+
+            } else if (valorPeriodicidad.trim() === "mensual") {
+
+                $("#divDiaAplicacion").css("display", "block"); // ocultar día de limpieza
+                $("#divMesAplicacion").css("display", "none"); // ocultar mes de limpieza
+
+            } else if (valorPeriodicidad.trim() === "bimestral" || valorPeriodicidad.trim() === "trimestral" || valorPeriodicidad.trim() === "cuatrimestral" || valorPeriodicidad.trim() === "semestral") {
+
+                $("#divDiaAplicacion").css("display", "block"); // ocultar día de limpieza
+                $("#divMesAplicacion").css("display", "block"); // ocultar mes de limpieza
+
+            }
+
+        }
+
+    }
+
+
+    //Para capturar los datos de periodicidad
+    function ObtenerFrecuencia()
+    {
+        let cadenaDescripcion = "";
+        const valorPeriodicidad = $("#Frec_Frecuencia").val();
+
+        if (valorPeriodicidad.length > 0) {
+            cadenaDescripcion = "Frecuencia: ";
+            let primerCaracter = valorPeriodicidad.charAt(0).toUpperCase();
+            cadenaDescripcion += primerCaracter + valorPeriodicidad.slice(1);
+        }
+
+        
+
+
+
+        ////
+
+        if (valorPeriodicidad.trim() == "diario" || valorPeriodicidad.trim() == "semanal") {
+
+            cadenaDescripcion += " | Días: " + TraducirDiasSeleccionados(ObtenerDiasSeleccionados());
+            $("#ModalPeriodicidad").modal("hide");
+
+        } else {
+
+            if (valorPeriodicidad.trim() === "quincenal" || valorPeriodicidad.trim() === "anual") {
+
+                //Validamos que existe el dia en el mes seleccioando
+                if (ValidarFecha(parseInt($("#Frec_DiaAplicacion").val()), parseInt($("#Frec_MesAplicacion").val()))) {
+                    cadenaDescripcion += " el día " + $("#Frec_DiaAplicacion").val() + " a partir de " + mesesAnio[parseInt($("#Frec_MesAplicacion").val())];
+                    $("#ModalPeriodicidad").modal("hide");
+
+                } else {
+                    NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', 'El dia seleccionado no es valido para el para el mes seleccionado.', 'error');
+                }
+
+            } else if (valorPeriodicidad.trim() === "mensual") {
+
+                cadenaDescripcion += ", el día: " + $("#Frec_DiaAplicacion").val();
+                $("#ModalPeriodicidad").modal("hide");
+
+            } else if (valorPeriodicidad.trim() === "mensual" || valorPeriodicidad.trim() === "bimestral" || valorPeriodicidad.trim() === "trimestral" || valorPeriodicidad.trim() === "cuatrimestral" || valorPeriodicidad.trim() === "semestral") {
+
+                cadenaDescripcion += ", el día " + $("#Frec_DiaAplicacion").val() + " a partir de " + mesesAnio[parseInt($("#Frec_MesAplicacion").val())];
+                $("#ModalPeriodicidad").modal("hide");
+
+            }
+
+        }
+        ///
+
+
+        $("#Frec_DescripcionFrecuencia").val(cadenaDescripcion);
+    }
+
+
+    function ValidarFecha(dia, mes) {
+        var diasEnMes = new Date(0, mes, 0).getDate();
+        return (dia >= 1 && dia <= diasEnMes);
+    }
+
+
+
+    var diasSemana = {
+        '1': 'Domingo',
+        '2': 'Lunes',
+        '3': 'Martes',
+        '4': 'Miércoles',
+        '5': 'Jueves',
+        '6': 'Viernes',
+        '7': 'Sábado'
+    };
+
+
+    var mesesAnio = {
+        '1': 'Enero',
+        '2': 'Febrero',
+        '3': 'Marzo',
+        '4': 'Abril',
+        '5': 'Mayo',
+        '6': 'Junio',
+        '7': 'Julio',
+        '8': 'Agosto',
+        '9': 'Septiembre',
+        '10': 'Octubre',
+        '11': 'Noviembre',
+        '12': 'Diciembre'
+    };
+
+
+
+    //Para cprutrar el nombre de los dias seleccioandos
+    function TraducirDiasSeleccionados(cadenaSeleccion) {
+        var valores             =       cadenaSeleccion.split('|');
+        var diasTraducidos      =       valores.map(function (valor) {
+            return diasSemana[valor];
+        });
+
+        return diasTraducidos.join('|');
+    }
+
+
+
+
+
+    //Para capturar los dias seleccionados
+    function ObtenerDiasSeleccionados() {
+        let seleccionados = [];
+
+        $(".diasSemana:checked").each(function () {
+            seleccionados.push($(this).val());
+        });
+
+        var cadenaSeleccion = seleccionados.join('|');
+
+        return cadenaSeleccion;
+    }
+
+
+
+    //Cuando dan click sobre el boton d Guardar
+    $("#btnGuardarDatosFrecuencia").on("click", function () {
+        const mensajeValidacion = ValidacionCamposFormulario(ObtenerDatosFormulario());
+        if (mensajeValidacion === "" ) {
+            AJAXGuardarDatosFrecuencia(ObtenerDatosFormulario());
+        } else {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', mensajeValidacion, "warning");
+        }
+    });
+
+
+    ///Para gestionar los datos de crud frecuencia
+    function AJAXGuardarDatosFrecuencia(objFrecuenciaVM) {
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarFrecuencia", "PML")',
+            data       :    JSON.stringify({ objFrecuenciaVM: objFrecuenciaVM }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+            $("#ModalFrecuencia").modal("hide");
+            AJAXConsultarFrecuencias();
+
+        }).fail(function (error) {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+
+    function ObtenerDatosFormulario() {
+        let objFrecuenciaVM = {
+            Accion:                      $("#Accion").val(),
+            Frec_IdEquipo:               $("#Frec_IdEquipo").val(),
+            Frec_IdFrecuencia:           $("#Frec_IdFrecuencia").val(),
+            Frec_IdFrecuenciaPadre:      $("#Frec_IdFrecuenciaPadre").val(),
+            Frec_IdTipoProducto:         $("#Frec_IdTipoProducto").val(),
+            Frec_IdProducto:             $("#Frec_IdProducto").val(),
+            Frec_Concentracion:          $("#Frec_Concentracion").val(),
+            Frec_IdUDM:                  $("#Frec_IdUDM").val(),
+            Frec_IdTipoLimpieza:         $("#Frec_IdTipoLimpieza").val(),
+            Frec_DescripcionFrecuencia:  $("#Frec_DescripcionFrecuencia").val(),
+            Frec_Frecuencia:             $("#Frec_Frecuencia").val(),
+            Frec_DiasSemana:             ObtenerDiasSeleccionados(),
+            Frec_DiaAplicacion:          $("#Frec_DiaAplicacion").val(),
+            Frec_MesAplicacion:          $("#Frec_MesAplicacion").val(),
+
+        };
+
+        return objFrecuenciaVM;
+    }
+
+
+
+    function ValidacionCamposFormulario(objFrecuenciaVM) {
+        let mensaje = "";
+
+            if (objFrecuenciaVM.Frec_IdTipoProducto == null || objFrecuenciaVM.Frec_IdTipoProducto == "") {
+                mensaje += `${$('label[for="Frec_IdTipoProducto"]').text()} es requerido. <br>`;
+            }
+
+            if (objFrecuenciaVM.Frec_IdProducto == null || objFrecuenciaVM.Frec_IdProducto == "") {
+                mensaje += `${$('label[for="Frec_IdProducto"]').text()} es requerido. <br>`;
+            }
+
+            if (objFrecuenciaVM.Frec_Concentracion == null || objFrecuenciaVM.Frec_Concentracion == "") {
+                mensaje += `${$('label[for="Frec_Concentracion"]').text()} es requerido. <br>`;
+            }
+
+            if (objFrecuenciaVM.Frec_IdUDM == null || objFrecuenciaVM.Frec_IdUDM == "") {
+                mensaje += `${$('label[for="Frec_IdUDM"]').text()} es requerido. <br>`;
+            }
+
+            if (objFrecuenciaVM.Frec_IdTipoLimpieza == null || objFrecuenciaVM.Frec_IdTipoLimpieza == "") {
+                mensaje += `${$('label[for="Frec_IdTipoLimpieza"]').text()} es requerido. <br>`;
+            }
+
+            if (objFrecuenciaVM.Frec_IdFrecuenciaPadre == null && (objFrecuenciaVM.Frec_DescripcionFrecuencia == null || objFrecuenciaVM.Frec_DescripcionFrecuencia == "")) {
+                mensaje += `${$('label[for="Frec_DescripcionFrecuencia"]').text()} es requerido. <br>`;
+            }
+        
+
+        return mensaje;
+    }
+
+
+
+
+
+
+    //Pasamos los datos al formulario del modal de las frecuencias, para agregar y para editar
+    function DatosFormulario(datosJson, accion) {
+
+        //Para los mensajes del titulo del modal
+        if (parseInt(accion) == 2) {
+            $("#txtTituloModal").text("Nuevo Detalle de Limpieza");
+        } else if (parseInt() == 3) {
+            $("#txtTituloModal").text("Editando Detalle de Limpieza");
+        }
+
+
+        row = JSON.parse(datosJson);
+
+        $("#divDescripcionFrecuencia").css("display", "block");
+
+        if (parseInt(row.Frec_IdFrecuencia) > 0) {
+            AJAXConsultarProductos(parseInt(row.Frec_IdTipoProducto), row.Frec_IdProducto);
+        }
+
+        $("#Accion").val(accion);
+        $("#Frec_IdEquipo").val(row.Frec_IdEquipo);
+        $("#Frec_IdFrecuencia").val(row.Frec_IdFrecuencia);
+        $("#Frec_IdFrecuenciaPadre").val(row.Frec_IdFrecuenciaPadre);
+        $("#Frec_IdTipoProducto").val(row.Frec_IdTipoProducto);
+        $("#Frec_Concentracion").val(row.Frec_Concentracion);
+        $("#Frec_IdUDM").val(row.Frec_IdUDM);
+        $("#Frec_IdTipoLimpieza").val(row.Frec_IdTipoLimpieza);
+        $("#Frec_IdProducto").val(row.Frec_IdProducto);
+
+
+
+        //Divs
+        const valorPeriodicidad = row.Frec_Frecuencia;
+
+        if (valorPeriodicidad.trim() == "diario" || valorPeriodicidad.trim() == "semanal") {
+
+            $("#divDiasAplicacion").css("display", "block");
+            $("#divDiaAplicacion").css("display", "none");
+            $("#divMesAplicacion").css("display", "none");
+
+        } else {
+
+            $("#divDiasAplicacion").css("display", "none");
+
+            if (valorPeriodicidad.trim() === "quincenal" || valorPeriodicidad.trim() === "anual") {
+
+                $("#divDiaAplicacion").css("display", "block");
+                $("#divMesAplicacion").css("display", "block");
+
+            } else if (valorPeriodicidad.trim() === "mensual") {
+
+                $("#divDiaAplicacion").css("display", "block"); // ocultar día de limpieza
+                $("#divMesAplicacion").css("display", "none"); // ocultar mes de limpieza
+
+            } else if (valorPeriodicidad.trim() === "mensual" || valorPeriodicidad.trim() === "bimestral" || valorPeriodicidad.trim() === "trimestral" || valorPeriodicidad.trim() === "cuatrimestral" || valorPeriodicidad.trim() === "semestral") {
+
+                $("#divDiaAplicacion").css("display", "block");
+                $("#divMesAplicacion").css("display", "block");
+
+            }
+
+        }
+        //Divs
+
+
+        const diaAplicacion = row.Frec_DiaAplicacion < 10 ? "0" + row.Frec_DiaAplicacion : row.Frec_DiaAplicacion;
+        const mesAplicacion = row.Frec_MesAplicacion < 10 ? "0" + row.Frec_MesAplicacion : row.Frec_MesAplicacion;
+
+        $("#Frec_DescripcionFrecuencia").val(row.Frec_DescripcionFrecuencia);
+        $("#Frec_Frecuencia").val(row.Frec_Frecuencia);
+        $("#Frec_DiasSemana").val(row.Frec_DiasSemana);
+        $("#Frec_DiaAplicacion").val(diaAplicacion);
+        $("#Frec_MesAplicacion").val(mesAplicacion);
+
+
+        MarcarDiasSemana(row.Frec_DiasSemana);
+
+
+        ///si el sistema identifica que se edita un producto alternado debemos de ocultar el div de las frecuencias
+        if (parseInt(row.Frec_IdFrecuenciaPadre) > 0) {
+            $("#divDescripcionFrecuencia").css("display", "none");//Ocultamos el div de  la frecuencia
+        }
+
+
+
+        $("#ModalFrecuencia").modal("show");
+
+    }
+
+
+
+    function MarcarDiasSemana(valores) {
+        $(".diasSemana").prop("checked", false);//limpiar dias de semana
+
+        var valoresArray = valores.split("|");
+        valoresArray.forEach(function (valor) {
+            // Busca los elementos con el atributo name="diasSemana" y el valor correspondiente
+            var checkboxes = document.querySelectorAll('input[name="diasSemana"][value="' + valor + '"]');
+
+            // Itera sobre los checkboxes encontrados y los marca
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = true;
+            });
+        });
+    }
+
+
+
+    function MensajeEliminacionFrecuencia(datosJSON) {
+        row     =   JSON.parse(datosJSON);
+
+        swalInit.fire({
+            title: '@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))',
+            html: "<br>Se eliminara el registro de la base de datos. <b> <br> ¿Deseas Continuar?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+            cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn btn-primary rounded-pill',
+                cancelButton: 'btn btn-danger rounded-pill'
+            }
+        }).then(function (result) {
+            if (result.value) {
+                let objFrecuenciaVM = {
+                    Accion: 4,
+                    Frec_IdFrecuencia: parseInt(row.Frec_IdFrecuencia)
+                };
+                AJAXGuardarDatosFrecuencia(objFrecuenciaVM)
+            }
+        });
+
+    }
+
+
+
+    ///Esta funcion se activa cuando se alteran un producto
+    function AlternarProducto(datosJSON) {
+        row     =    JSON.parse(datosJSON);
+
+        $("#txtTituloModal").text("Alternando Detalle de Limpieza");
+        $("#divDescripcionFrecuencia").css("display", "none");//Ocultamos el div de  la frecuencia
+        $("#Accion").val(2);
+        $("#Frec_IdFrecuenciaPadre").val(parseInt(row.Frec_IdFrecuencia));
+
+        //Limpiamos loscampos incolucrados en el modal de las frecuencias
+        $("#Frec_IdFrecuencia").val('');
+        $("#Frec_IdTipoProducto").val('');
+        $("#Frec_Concentracion").val('');
+        $("#Frec_IdUDM").val('');
+        $("#Frec_IdTipoLimpieza").val('');
+        $("#Frec_IdProducto").val('');
+        LimpiarCamposModalFrecuencia();
+        //Limpiamos loscampos incolucrados en el modal de las frecuencias
+
+        $("#ModalFrecuencia").modal("show");
+
+    }
+
+
+
+</script>

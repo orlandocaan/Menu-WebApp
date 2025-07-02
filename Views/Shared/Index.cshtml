@@ -1,0 +1,194 @@
+﻿@model IEnumerable<BetaClientesVM.Menu.MCarouselVM>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+
+@*<div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-3">
+                            <img src="~/Images/BETA.png" class="img-fluid" alt="Logo" width="100%" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+<div class="bodyCarrusel">
+    <div class="img-slider">
+
+        @if (Model != null)
+        {
+
+            foreach (var row in Model)
+            {
+                if (row.Crsl_DateStart <= DateTime.Now && row.Crsl_DateEnd > DateTime.Now)
+                {
+                    <div class="slidee active">
+                        <img src="@Html.DisplayFor(modelItem => row.Crsl_Img)" alt="">
+                        <div class="info">
+                            <h2>@Html.DisplayFor(modelItem => row.Crsl_Title)</h2>
+                            <p> @Html.DisplayFor(modelItem => row.Crsl_Message)</p>
+                        </div>
+                    </div>
+                }
+            }
+
+            <div class="navigation">
+                @foreach (var row in Model)
+                {
+                    if (row.Crsl_DateStart <= DateTime.Now && row.Crsl_DateEnd > DateTime.Now)
+                    {
+                        <div class="btnCarrusel"></div>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+        var slides = document.querySelectorAll('.slidee');
+        var btns = document.querySelectorAll('.btnCarrusel');
+        let currentSlide = 0;
+        let slideInterval;
+
+        var manualNav = function (manual) {
+            clearInterval(slideInterval); // Detiene el intervalo
+
+            slides.forEach((slide) => {
+                slide.classList.remove('active');
+
+                btns.forEach((btn) => {
+                    btn.classList.remove('active');
+                });
+            });
+
+            slides[manual].classList.add('active');
+            btns[manual].classList.add('active');
+
+            currentSlide = manual;
+            slideInterval = setInterval(repeat, 7000); // Reinicia el intervalo
+        }
+
+        btns.forEach((btn, i) => {
+            btn.addEventListener("click", () => {
+                manualNav(i);
+            });
+        });
+
+        var repeat = function () {
+            slides.forEach((slide) => {
+                slide.classList.remove('active');
+            });
+
+            btns.forEach((btn) => {
+                btn.classList.remove('active');
+            });
+
+            currentSlide++;
+            if (currentSlide >= slides.length) {
+                currentSlide = 0;
+            }
+
+            slides[currentSlide].classList.add('active');
+            btns[currentSlide].classList.add('active');
+        }
+
+        slideInterval = setInterval(repeat, 7000);
+
+        manualNav(0);
+    });
+</script>
+
+
+
+<style>
+
+    .bodyCarrusel {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .img-slider {
+        position: relative;
+        width: 1600px;
+        height: 720px;
+        margin: 10px;
+        background: #1D212B;
+    }
+
+        .img-slider .slidee {
+            z-index: 1;
+            position: absolute;
+            width: 100%;
+            clip-path: circle(0% at 40%);
+        }
+
+            .img-slider .slidee.active {
+                clip-path: circle(150% at 0 40%);
+                transition: 1.5s;
+                transition-property: clip-path;
+            }
+
+            .img-slider .slidee img {
+                z-index: 1;
+                width: 100%;
+                height: 100%;
+                border-radius: 5px;
+            }
+
+            .img-slider .slidee .info {
+                position: absolute;
+                top: 0;
+                padding: 15px 30px;
+            }
+
+                .img-slider .slidee .info h2 {
+                    color: #fff;
+                    font-size: 45px;
+                    text-transform: uppercase;
+                    font-weight: 800;
+                    letter-spacing: 2px;
+                }
+
+                .img-slider .slidee .info p {
+                    color: #fff;
+                    background: rgb(0, 0, 0, 0.1);
+                    font-size: 20px;
+                    width: 70%;
+                    padding: 10px;
+                    border-radius: 4px;
+                }
+
+        .img-slider .navigation {
+            z-index: 2;
+            position: absolute;
+            display: flex;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+            .img-slider .navigation .btnCarrusel {
+                background: rgba(255, 255, 255, 0.5);
+                width: 12px;
+                height: 12px;
+                margin: 10px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+                .img-slider .navigation .btnCarrusel.active {
+                    background: #2696E9;
+                    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+                }
+</style>

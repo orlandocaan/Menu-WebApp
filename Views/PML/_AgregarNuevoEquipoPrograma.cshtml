@@ -1,0 +1,100 @@
+﻿@model IEnumerable<BetaClientesVM.PML.PMLDetalleProgramaVM>
+
+
+<div class="table-responsive">
+    <table class="table  small coloresTablas TablaDetallesPrograma AgregarNuevoDetalle" width="100%">
+        @*<colgroup>
+            <col width="5%"/>
+            <col width="18%">
+            <col width="18%">
+            <col width="34%">
+            <col width="2%">
+        </colgroup>*@
+
+        <thead>
+            <tr>
+                <th>Agregar</th>
+                <th>@Html.DisplayNameFor(label => label.NombreDelArea)</th>
+                <th>@Html.DisplayNameFor(label => label.DetPro_NombreEquipo)</th>
+                <th>Descripción de los Productos</th>
+                <th>@Html.DisplayNameFor(label => label.DetPro_NombreColaborador) </th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @if (Model != null)
+            {
+                foreach (var row in Model)
+                {
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="AgregarFilaNuevoDetalle"/>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => row.NombreDelArea)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => row.DetPro_NombreEquipo)
+                        </td>
+                        <td class="small">
+                            <input type="checkbox" name="DetPro_ProductoBaseActivoNuevoDetalle" value="1" class="productoBase" /> @Html.DisplayFor(modelItem => row.DetPro_NombreProductoBase)
+                            <input type="hidden" name="DetPro_IdProductoBaseNuevoDetalle" value="@row.DetPro_IdProductoBase" class="productoBase" />
+                            <input type="hidden" name="DetPro_NombreProductoBaseNuevoDetalle" value="@row.DetPro_NombreProductoBase" class="productoBase" />
+
+                            @if (row.DetPro_IdProductoAlt1 != "")
+                            {
+                                <br />
+                                <input type="checkbox" name="DetPro_ProductoAlt1ActivoNuevoDetalle" value="@row.DetPro_IdProductoAlt1" class="productoAlterno1" /> <b>Prod Alt 1</b> @Html.DisplayFor(modelItem => row.DetPro_NombreProductoAlt1)
+                                <input type="hidden" name="DetPro_IdProductoAlt1NuevoDetalle" value="@row.DetPro_IdProductoAlt1" class="productoAlterno1" />
+                                <input type="hidden" name="DetPro_NombreProductoAlt1NuevoDetalle" value="@row.DetPro_NombreProductoAlt1" class="productoAlterno1" />
+
+                            }
+                            @if (row.DetPro_IdProductoAlt2 != "")
+                            {
+                                <br />
+                                <input type="checkbox" name="DetPro_ProductoAlt2ActivoNuevoDetalle" value="@row.DetPro_IdProductoAlt2" class="productoAlterno2" /> <b>Prod Alt 2</b> @Html.DisplayFor(modelItem => row.DetPro_NombreProductoAlt2)
+                                <input type="hidden" name="DetPro_IdProductoAlt2NuevoDetalle" value="@row.DetPro_IdProductoAlt2" class="productoAlterno2" />
+                                <input type="hidden" name="DetPro_NombreProductoAlt2NuevoDetalle" value="@row.DetPro_NombreProductoAlt2" class="productoAlterno2" />
+                            }
+                        </td>
+                        <td>
+                            <div style="position: relative;">
+                                <input type="hidden" name="DetPro_IdAreaNuevoDetalle" value="@row.DetPro_IdArea" />
+                                <input type="hidden" name="DetPro_IdColaboradorNuevoDetalle" id="IdOperadorNuevoDetalle@(row.NumeroLinea)" class="form-control" readonly />
+                                <input type="hidden" name="DetPro_IdEquipoNuevoDetalle" value="@row.DetPro_IdEquipo" />
+                                <input type="text" name="DetPro_NombreColaboradorNuevoDetalle" id="NombreOperadorNuevoDetalle@(row.NumeroLinea)" class="form-control" style="font-size: 11px;" onclick="BuscadorColaboradorNuevoDetalle('@Json.Encode(row)', '@row.NumeroLinea');" placeholder="Click aquí" readonly />
+                                <input type="hidden" name="DetPro_NombreEquipoNuevoDetalle" value="@row.DetPro_NombreEquipo" />
+
+                                <input type="hidden" name="IdResponsableNuevoDetalle" value="@row.IdResponsable" />
+                                <input type="hidden" name="IdSupervisorNuevoDetalle" value="@row.IdSupervisor" />
+                                <input type="hidden" name="NombreResponsableNuevoDetalle" value="@row.NombreResponsable" />
+                                <input type="hidden" name="NombreSupervisorNuevoDetalle" value="@row.NombreSupervisor" />
+
+                                <i class="fas fa-search" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+        $('.AgregarNuevoDetalle').DataTable();
+    });
+
+
+
+
+
+</script>

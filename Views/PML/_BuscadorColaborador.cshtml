@@ -1,0 +1,38 @@
+﻿@model IEnumerable<BetaClientesVM.PML.PMLColaboradoresVM>
+
+
+<div class="table-responsive">
+    <table class="table datatable-basic small coloresTablas buscadorColaboradores" width="100%">
+
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(label => label.Col_Nombre)</th>
+                <th>@Html.DisplayNameFor(label => label.Pue_Nombre)</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @if (Model != null)
+            {
+                foreach (var row in Model)
+                {
+                    <tr onclick="DatosColaborador('@Json.Encode(row)');">
+                        <td> @Html.DisplayFor(modelItem => row.Col_Nombre)</td>
+                        <td> @Html.DisplayFor(modelItem => row.Pue_Nombre)</td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+
+
+
+

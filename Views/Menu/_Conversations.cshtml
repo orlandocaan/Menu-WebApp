@@ -1,0 +1,59 @@
+﻿@model IEnumerable<BetaClientesVM.Menu.MMessagesVM>
+
+@{
+    int idUsuario = Convert.ToInt32(Session["UserID"]);
+}
+
+
+<div class="chat-messages p-4" id="chatMessages">
+
+    @if (Model != null)
+    {
+        foreach (var row in Model)
+        {
+            if (row.UserId != idUsuario)
+            {
+                <div class="chat-message-left pb-4" data-idconversation="@row.IdConversation">
+                    <div>
+                        <img src="/images/SystemConfigImages/defaultUserImage.png" class="rounded-circle mr-1" alt="" width="40" height="40">
+                        <div class="text-muted small text-nowrap mt-2">@Html.DisplayFor(modelItem => row.DateSend.TimeOfDay)</div>
+                    </div>
+                    <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
+                        <div class="font-weight-bold mb-1">@Html.DisplayFor(modelItem => row.UserName)</div>
+                        @Html.DisplayFor(modelItem => row.Content)
+                    </div>
+                </div>
+            }
+            else
+            {
+                var formattedTime = row.DateSend.TimeOfDay.ToString(@"hh\:mm\:ss");
+                <div class="chat-message-right pb-4" data-idconversation="@row.IdConversation">
+                    <div>
+                        <img src="/images/SystemConfigImages/defaultUserImage.png" class="rounded-circle mr-1" alt="" width="40" height="40">
+                        
+                        <div class="text-muted small text-nowrap mt-2">@Html.DisplayFor(modelItem => formattedTime)</div>
+                    </div>
+                    <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
+                        <div class="font-weight-bold mb-1">@Html.DisplayFor(modelItem => row.UserName)</div>
+                        @Html.DisplayFor(modelItem => row.Content)
+                    </div>
+                </div>
+            }
+        }
+    }
+    else
+    {
+        <span>No hay Mensajes aun</span>
+    }
+</div>
+
+<script>
+
+    scrollChatToBottom();
+
+    function scrollChatToBottom() {
+        var chatMessages = document.getElementById('chatMessages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+</script>

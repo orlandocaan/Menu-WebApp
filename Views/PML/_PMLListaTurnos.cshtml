@@ -1,0 +1,46 @@
+﻿@model IEnumerable<BetaClientesVM.PML.PMLTurnosVM>
+
+<table class="table datatable-basic small coloresTablas" width="100%">
+    <thead>
+        <tr>
+        
+            <th>Descripción</th>
+            <th>Hora Entrada</th>
+            <th>Hora Salida</th>
+            <th class="text-center">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @if (Model != null)
+        {
+            foreach (var row in Model)
+            {
+
+                <tr>
+                  
+                    <td>@Html.DisplayFor(modelItem => row.Tur_Descripcion)</td>
+                    <td>@Html.DisplayFor(modelItem => row.Tur_HoraEntrada)</td>
+                    <td>@Html.DisplayFor(modelItem => row.Tur_HoraSalida)</td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="DatosModalTurnos('@Json.Encode(row)', '2')" title="Editar">
+                                <i class="fa fa-edit fa-1x"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacion('@Json.Encode(row)')" title="Eliminar">
+                                <i class="fas fa-trash fa-1x"></i>
+                            </button>
+
+                        </div>
+                    </td>
+                </tr>
+
+            }
+        }
+
+    </tbody>
+</table>
+
+
+
+

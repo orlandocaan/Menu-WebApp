@@ -1,0 +1,227 @@
+﻿@model BetaClientesVM.PML.PMLColaboradoresVM
+
+@{
+    ViewBag.Title = "PML Colaboradores Index";
+    ViewBag.NombreModulo = "PML";
+    ViewBag.TituloPagina = "Colaboradores Index";
+}
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregarColaborador"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divListaColaboradores"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Basic modal -->
+    <div id="ModalColaboradores" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header headerModal">
+                    <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Información del Colaborador</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                    <div class="row">
+                        @Html.HiddenFor(model => model.Accion)
+                        @Html.HiddenFor(model => model.Col_IdColaborador)
+
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                            @Html.LabelFor(model => model.Col_Nombre, htmlAttributes: new { @class = "font-weight-bold" })
+                            @Html.EditorFor(model => model.Col_Nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                            @Html.ValidationMessageFor(model => model.Col_Nombre, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 mt-2">
+                            <div class="col-lg-12">
+                                @Html.LabelFor(model => model.Col_Puesto, htmlAttributes: new { @class = "font-weight-bold" })
+                                @Html.DropDownListFor(model => model.Col_Puesto, ViewBag.cmbPuestos as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.Col_Puesto, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer mt-2">
+                    <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                    <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatosColaborador"><i class="fas fa-save fa-1x"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Basic modal -->
+
+
+    <div id="ModalCursos" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header headerModal">
+                    <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Cursos Asignados</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                    <div class="row" id="divCursosAsignados">
+
+                    </div>
+                </div>
+
+                <div class="modal-footer mt-2">
+                    <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                    <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatosColaborador"><i class="fas fa-save fa-1x"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    function ConsultarColaboradores()
+    {
+        $.ajax({
+            type       : "get",
+            url        : '@Url.Action("ConsultarColaboradoresActivos", "PML")',
+            contentType: "application/json; charset=utf-8",
+        }).done(function (result) {
+
+            $("#divListaColaboradores").html(result);
+
+            $('#miTabla').each(function () {
+                $(this).DataTable().destroy();
+                $(this).DataTable();
+            });
+
+
+        }).fail(function (error) {
+
+            NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de colaboradores.", "error");
+
+        });
+    }
+
+    ConsultarColaboradores();
+
+
+    $("#btnAgregarColaborador").on("click", function () {
+        const accion = 1;
+
+        //Para limpiar los datos a los elmentos del formulario
+        var datosModal = JSON.stringify({
+            Col_IdColaborador: 0,
+            Col_Nombre: "",
+            Pue_Nombre: ""
+        });
+
+        DatosModalColaboradores(datosModal, accion);
+    });
+
+    function DatosModalColaboradores(datosModal, accion) {
+        row = JSON.parse(datosModal);
+        console.log(row.Pue_Nombre);
+
+        $("#Accion").val(accion);
+        $("#Col_IdColaborador").val(row.Col_IdColaborador);
+        $("#Col_Nombre").val(row.Col_Nombre);
+        $("#Col_Puesto").val(row.Col_Puesto);
+
+        $("#ModalColaboradores").modal("show");
+
+    }
+
+    $("#btnGuardarDatosColaborador").on("click", function () {
+        AJAXGuardarDatosColaborador(ObtenerDatos());
+    });
+
+    function AJAXGuardarDatosColaborador(objColaboradoresVM) {
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarColaboradores", "PML")',
+            data: JSON.stringify({ objColaboradoresVM: objColaboradoresVM }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+            ConsultarColaboradores();
+            $("#ModalColaboradores").modal("hide");
+
+            //SI OCURRE UN ERROR
+            if (result.resultado == 0) {
+                NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+            }
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+    function ObtenerDatos() {
+        let objColaboradoresVM = {
+            Accion: $("#Accion").val(),
+            Col_IdColaborador: $("#Col_IdColaborador").val(),
+            Col_Nombre: $("#Col_Nombre").val(),
+            Col_Puesto: $("#Col_Puesto").val()
+        };
+
+        return objColaboradoresVM;
+    }
+
+    function MensajeEliminacion(datos) {
+    row = JSON.parse(datos);
+
+        swalInit.fire({
+            title: '@ViewBag.TituloPagina',
+            html: "<br>Se eliminara <b>" + row.Col_Nombre + "</b><br> ¿Deseas Continuar?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+            cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn btn-primary rounded-pill',
+                cancelButton: 'btn btn-danger rounded-pill'
+            }
+        }).then(function (result) {
+            if (result.value) {
+                let objEquiposVM = {
+                    Accion: 3,
+                    Col_IdColaborador: row.Col_IdColaborador
+                };
+                AJAXGuardarDatosColaborador(objEquiposVM)
+            }
+        });
+
+    }
+
+    function AsignarCursos()
+    {
+
+        $.ajax({
+            type       : "get",
+            url        : '@Url.Action("CursosAsignados", "PML")',
+            contentType: "application/json; charset=utf-8",
+        }).done(function (result) {
+            $("#ModalCursos").modal("show");
+            $("#divCursosAsignados").html(result);
+
+            $('#miTabla').each(function () {
+                $(this).DataTable().destroy();
+                $(this).DataTable();
+            });
+
+        }).fail(function (error) {
+
+            NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar los cursos.", "error");
+
+        });
+    }
+
+    </script>

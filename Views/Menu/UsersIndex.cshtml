@@ -1,0 +1,664 @@
+﻿@model BetaClientesVM.Menu.MUserVM
+
+@{
+    ViewBag.Title = "UsersIndex";
+    ViewBag.NombreModulo = "Menu";
+    ViewBag.TituloPagina = "Usuarios";
+}
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h3 id="H3Colaborador"></h3>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregarUsuario" onclick="ocultarPassword()"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divListaUsuarios"></div>
+
+        </div>
+    </div>
+</div>
+
+@*Basic modal*@
+<div id="ModalUsuario" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"><span id="modalTittle"></span></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Accion)
+                    @Html.HiddenFor(model => model.UserId)
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.UserName, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div id="divPassword" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2" onclick="mostrarModalPassword()">
+                        @Html.LabelFor(model => model.Password, htmlAttributes: new { @id = "LPassword", @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @id = "UPassword", @type = "Password", @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @id = "UName", @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @id = "ULastName", @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @id = "UEmail", @type = "email", @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.RoleId, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.RoleId, ViewBag.cmbRoles as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.RoleId, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Img, htmlAttributes: new { @class = "font-weight-bold" })
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="Img" name="Buscar" onchange="mostrarNombreImg(this)" accept="image/*">
+                            <label class="custom-file-label text-muted" for="Img">Seleccione una imagen</label>
+                        </div>
+                        @Html.HiddenFor(model => model.Img, new { @id = "UImg" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.IdEmpresa, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.IdEmpresa, ViewBag.cmbCompanies as IEnumerable<SelectListItem>, "Selecciona una opción", new { @id="idEmpresa", @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.IdEmpresa, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div id="idPlantaContainer" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatosUsuario"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Basic modal*@
+
+
+@*Basic modal*@
+<div id="ModalPassword" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;">Cambiar Contraseña</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Accion)
+                    @Html.HiddenFor(model => model.UserId)
+                    @Html.HiddenFor(model => model.UserName)
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-2">
+                        @Html.LabelFor(model => model.NewPassword, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.NewPassword, new { htmlAttributes = new { @id = "NPassword", @type = "Password", @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.NewPassword, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-2">
+                        @Html.LabelFor(model => model.ConfirmPassword, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.ConfirmPassword, new { htmlAttributes = new { @id = "CPassword", @type = "Password", @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.ConfirmPassword, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatosPassword"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Basic modal*@
+
+
+
+<script>
+
+    function ConsultarUsuarios() {
+
+         $.ajax({
+             type       : "get",
+             url: '@Url.Action("ConsultarUsuarios", "Menu")',
+             contentType: "application/json; charset=utf-8",
+         }).done(function (result) {
+
+             $("#divListaUsuarios").html(result);
+
+             $('table').each(function () {
+                 $(this).DataTable().destroy();
+                 $(this).DataTable();
+             });
+
+         }).fail(function (error) {
+
+             NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de usuarios.", "error");
+
+         });
+    }
+    ConsultarUsuarios();
+    CargaPlanta(0);
+    $("#btnAgregarUsuario").on("click", function () {
+        const accion = 5;
+        var modalTitle = document.getElementById('modalTittle');
+
+        modalTitle.innerText = "Agregar Usuario";
+        //ConsultarCursos();
+        DatosModalUsuario(accion);
+    });
+
+    function DatosModalUsuario(accion) {
+        $("#Accion").val(accion);
+
+        // Limpiar el input de texto para el modal de usuarios
+        $('#UserName').val('');
+        $('#UPassword').val('');
+        $('#UName').val('');
+        $('#ULastName').val('');
+        $('#UEmail').val('');
+        $('#RoleId').val('');
+        $('#UImg').val('');
+        $('#Img').val('');
+        $('#Img').next('.custom-file-label').html('Seleccione una imagen');
+        $('#idEmpresa').val('');
+        $('#idPlanta').val('');
+        $("#ModalUsuario").modal("show");
+
+    }
+
+    function validarCampos() {
+        var userName = $("#UserName").val();
+        var name = $("#UName").val();
+        var lastName = $("#ULastName").val();
+        var email = $("#UEmail").val();
+        var roleId = $("#RoleId").val();
+        var img = $("#UImg").val();
+        var idEmpresa = $("#idEmpresa").val();
+        var idPlanta = $("#idPlanta").val();
+
+        if (!userName) {
+            Swal.fire({
+                text: "Ingrese el Nombre de Usuario.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!name) {
+            Swal.fire({
+                text: "Ingrese el Nombre.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!lastName) {
+            Swal.fire({
+                text: "Ingrese los apellidos.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!email) {
+            Swal.fire({
+                text: "Ingrese el Correo Electrónico.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+
+        var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+        if (!emailRegex.test(email)) {
+            Swal.fire({
+                text: "Ingrese un Correo Electrónico Valido.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+
+        if (!roleId) {
+            Swal.fire({
+                text: "Seleccione el tipo de Rol.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!idEmpresa) {
+            Swal.fire({
+                text: "Seleccione la Empresa.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!idPlanta) {
+            Swal.fire({
+                text: "Seleccione la Planta.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+
+        return true;
+    }
+
+    $("#btnGuardarDatosUsuario").on("click", function () {
+        if (validarCampos()) {
+            AJAXGuardarDatos(ObtenerDatos());
+        } else {
+            console.log("Error");
+        }
+
+    });
+
+    function AJAXGuardarDatos(objUser) {
+
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarUsuarios", "Menu")',
+            data: JSON.stringify({ objUser: objUser }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+            ConsultarUsuarios();
+            $("#ModalUsuario").modal("hide");
+
+            //SI OCURRE UN ERROR
+            if (result.resultado == 0) {
+                NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+            }
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+    function ObtenerDatos() {
+        let objUser = {
+            Accion: $("#Accion").val(),
+            UserId: $("#UserId").val(),
+            UserName: $("#UserName").val(),
+            Password: $("#UPassword").val(),
+            Name: $("#UName").val(),
+            LastName: $("#ULastName").val(),
+            Email: $("#UEmail").val(),
+            RoleId: $("#RoleId").val(),
+            Img: $("#UImg").val(),
+            IdEmpresa: $("#idEmpresa").val(),
+            IdPlanta: $("#idPlanta").val()
+        };
+        return objUser;
+    }
+
+    function mostrarNombreImg(input) {
+        var file = input.files[0]; // Obtener el archivo seleccionado
+        var fileName = input.files[0].name; // Obtener el nombre del archivo seleccionado
+        var label = input.nextElementSibling; // Obtener el elemento de la etiqueta siguiente al input
+
+        label.innerHTML = fileName; // Mostrar el nombre del archivo en la etiqueta
+
+        var reader = new FileReader(); // Crear un lector de archivos
+
+        reader.onload = function (e) {
+            var imageData = e.target.result; // Obtener el contenido del archivo como base64
+
+            imageData = imageData.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""); // Remover el prefijo de la cadena base64
+
+            // Asignar el arreglo de bytes al campo Img del formulario
+            $("#UImg").val(imageData);
+        };
+
+        reader.readAsDataURL(file); // Leer el archivo como base64
+    }
+
+    function DesactivarUsuario(datos, accion) {
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+        // Decode base64 string to byte array
+
+        let imgBytes = row.Img;
+        let imgData = btoa(String.fromCharCode.apply(null, imgBytes));
+
+        let objUser = {
+            Accion: accion,
+            UserId: row.UserId,
+            UserName: row.UserName,
+            Password: row.Password,
+            Name: row.Name,
+            LastName: row.LastName,
+            Email: row.Email,
+            Img: imgData,
+            RoleId: row.RoleId,
+            Enabled: false
+        };
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡Desactivar al usuario " + row.Name + "!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, desactivar!',
+            cancelButtonText: 'No, cancelar!',
+            customClass: {
+                confirmButton: 'btn btn-primary rounded-pill',
+                cancelButton: 'btn btn-danger rounded-pill'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: "post",
+                    url: '@Url.Action("GestionarUsuarios", "Menu")',
+                    data: JSON.stringify({ objUser: objUser }),
+                    contentType: "application/json; charset=utf-8",
+                }).done(function (result) {
+                    ConsultarUsuarios();
+                    if (result.resultado == 0) {
+                        NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+                    }
+                }).fail(function (error) {
+                    NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+                });
+            }
+        });
+    }
+
+    function ActivarUsuario(datos, accion) {
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+        // Decode base64 string to byte array
+
+        let imgBytes = row.Img;
+        let imgData = btoa(String.fromCharCode.apply(null, imgBytes));
+
+        let objUser = {
+            Accion: accion,
+            UserId: row.UserId,
+            UserName: row.UserName,
+            Password: row.Password,
+            Name: row.Name,
+            LastName: row.LastName,
+            Email: row.Email,
+            Img: imgData,
+            RoleId: row.RoleId,
+            Enabled: true
+        };
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡Activar al usuario " + row.Name + "!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, activar!',
+            cancelButtonText: 'No, cancelar!',
+            customClass: {
+                confirmButton: 'btn btn-primary rounded-pill',
+                cancelButton: 'btn btn-danger rounded-pill'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: "post",
+                    url: '@Url.Action("GestionarUsuarios", "Menu")',
+                    data: JSON.stringify({ objUser: objUser }),
+                    contentType: "application/json; charset=utf-8",
+                }).done(function (result) {
+                    ConsultarUsuarios();
+                    if (result.resultado == 0) {
+                        NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+                    }
+                }).fail(function (error) {
+                    NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+                });
+            }
+        });
+    }
+
+    function EditarUsuario(datos, accion) {
+        mostrarPassword();
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+        id = parseInt(row.IdEmpresa);
+        CargaPlanta(id);
+        var imgBase64 = convertImageToBase64(row.Img);
+
+        $("#Accion").val(accion);
+        $("#UserId").val(row.UserId);
+        $("#UserName").val(row.UserName);
+        $("#UPassword").val(row.Password);
+        $("#UName").val(row.Name);
+        $("#ULastName").val(row.LastName);
+
+        $("#UEmail").val(row.Email);
+        $("#RoleId").val(row.RoleId);
+        $("#UImg").val(imgBase64);
+        $("#idEmpresa").val(row.IdEmpresa);
+
+        var modalTitle = document.getElementById('modalTittle');
+        modalTitle.innerText = "Editar Usuario";
+        setTimeout(function () {
+           
+            $("#idPlanta").val(row.IdPlanta);
+           
+       }, 100);
+        $("#ModalUsuario").modal("show");
+        
+    }
+
+    function ocultarPassword() {
+        var divPassword = document.getElementById('divPassword');
+        divPassword.style.display = 'none';
+    }
+
+    function mostrarPassword(event) {
+        var divPassword = document.getElementById('divPassword');
+        var inputPassword = document.getElementById('UPassword');
+
+        // Hacer el campo de contraseña de solo lectura
+        inputPassword.readOnly = true;
+
+        // Mostrar el campo de contraseña (si es necesario)
+        divPassword.style.display = '';
+
+    }
+
+    function convertImageToBase64(arrayBuffer) {
+        var binary = '';
+        var bytes = new Uint8Array(arrayBuffer);
+        var len = bytes.byteLength;
+        for (var i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        var base64 = btoa(binary);
+        return base64;
+    }
+
+    function mostrarModalPassword() {
+        $("#ModalPassword").modal("show");
+        var id = $("#UserId").val();
+        var name = $("#UserName").val();
+        $("#PAccion").val(8);
+        $("#PUserId").val(id);
+        $("#PUserName").val(name);
+        $("#NPassword").val('');
+        $("#CPassword").val('');
+
+    }
+
+    $("#btnGuardarDatosPassword").on("click", function () {
+        var accion = 8;
+        var userId = $("#UserId").val();
+        var userName = $("#UserName").val();
+        var newPassword = $("#NPassword").val();
+        var confirmPassword = $("#CPassword").val();
+
+        if (!newPassword) {
+            Swal.fire({
+                text: "Complete el campo nueva contraseña.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!confirmPassword) {
+            Swal.fire({
+                text: "Complete el campo confirmar contraseña.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+        if(newPassword != confirmPassword){
+            Swal.fire({
+                text: "Las contraseñas no coinciden.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            });
+            return;
+        }
+
+        let objUser = {
+            Accion: accion,
+            UserId: userId,
+            Password: newPassword
+        };
+
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡Cambiara la contraseña del usuario " + userName + "!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, Cambiar!',
+            cancelButtonText: 'No, cancelar!',
+            customClass: {
+                confirmButton: 'btn btn-primary rounded-pill',
+                cancelButton: 'btn btn-danger rounded-pill'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: "post",
+                    url: '@Url.Action("GestionarContraseña", "Menu")',
+                    data: JSON.stringify({ objUser: objUser }),
+                    contentType: "application/json; charset=utf-8",
+                }).done(function (result) {
+                    ConsultarUsuarios();
+                    $("#ModalUsuario").modal("hide");
+                    $("#ModalPassword").modal("hide");
+                    if (result.resultado == 0) {
+                        NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+                    }
+                }).fail(function (error) {
+                    NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+                });
+            }
+        });
+
+    });
+
+    document.getElementById('idEmpresa').addEventListener('change', function () {
+        var selectedValue = this.value;
+
+        $.ajax({
+            url: '@Url.Action("CargarComboPlantas", "Menu")',
+            type: 'POST',
+            data: { idEmpresa: selectedValue },
+            success: function (response) {
+                $('#idPlantaContainer').html(response); // Actualiza el contenido del contenedor del DropDownListFor
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error('Error en la solicitud AJAX:', errorThrown);
+            }
+        });
+    });
+
+    function CargaPlanta(idEmpresa) {
+        $.ajax({
+            url: '@Url.Action("CargarComboPlantas", "Menu")',
+            type: 'POST',
+            data: { idEmpresa: idEmpresa },
+            success: function (response) {
+                $('#idPlantaContainer').html(response); // Actualiza el contenido del contenedor del DropDownListFor
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error('Error en la solicitud AJAX:', errorThrown);
+            }
+        });
+    }
+</script>

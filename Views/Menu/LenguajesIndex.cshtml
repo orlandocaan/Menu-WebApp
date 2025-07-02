@@ -1,0 +1,159 @@
+﻿@model Tuple<BetaClientesVM.Menu.MLabelVM, List<BetaClientesVM.Menu.MLanguageVM>>
+
+    @{
+        ViewBag.Title = "LenguajesIndex";
+        ViewBag.NombreModulo = "Menu";
+        ViewBag.TituloPagina = "Lenguajes";
+    }
+
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h3 id="H3Colaborador"></h3>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                            <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregarLenguaje"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divListaLenguajes"></div>
+
+            </div>
+        </div>
+    </div>
+
+    @*Basic modal*@
+    <div id="ModalLenguaje" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header headerModal">
+                    <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;">Agregar Lenguaje</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                    <div class="row">
+                        @Html.HiddenFor(model => model.Item1.Accion)
+                        @Html.HiddenFor(model => model.Item1.Id)
+
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                            @Html.LabelFor(model => model.Item1.langcode, htmlAttributes: new { @class = "font-weight-bold" })
+                            @Html.EditorFor(model => model.Item1.langcode, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @placeholder = "ejemplo: pt" } })
+                            @Html.ValidationMessageFor(model => model.Item1.langcode, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div id="divPassword" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                            @Html.LabelFor(model => model.Item1.text, htmlAttributes: new { @class = "font-weight-bold" })
+                            @Html.EditorFor(model => model.Item1.text, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @placeholder= "ejemplo: Portugués" } })
+                            @Html.ValidationMessageFor(model => model.Item1.text, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div id="divConocen" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                            <table class="table datatable-basic small">
+                                <thead>
+                                    <tr>
+                                        <th>Código del Lenguaje</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @if (Model.Item2 != null)
+                                    {
+                                        foreach (var item in Model.Item2)
+                                        {
+
+                                            <tr>
+                                                <td>@Html.DisplayFor(modelItem => item.langCode)</td>
+                                                <td>
+                                                    <input id="descripcion1" type="text" class="form-control" placeholder="">
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="divConocen" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                            <table class="table datatable-basic small">
+                                <thead>
+                                    <tr>
+                                        <th>Código del Lenguaje</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @if (Model.Item2 != null)
+                                    {
+                                        foreach (var item in Model.Item2)
+                                        {
+
+                                            <tr>
+                                                <td>@Html.DisplayFor(modelItem => item.langCode)</td>
+                                                <td>
+                                                    <input id="descripcion2" type="text" class="form-control" placeholder="">
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>   
+                <div class="modal-footer mt-2">
+                    <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                    <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatos"><i class="fas fa-save fa-1x"></i> Guardar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    @*Basic modal*@
+
+    <script>
+        function ConsultarLenguajes() {
+             $.ajax({
+                 type       : "get",
+                 url: '@Url.Action("ConsultarLenguajes", "Menu")',
+                 contentType: "application/json; charset=utf-8",
+             }).done(function (result) {
+
+                 $("#divListaLenguajes").html(result);
+
+                 $('table').each(function () {
+                     $(this).DataTable().destroy();
+                     $(this).DataTable();
+                 });
+
+             }).fail(function (error) {
+
+                 NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de usuarios.", "error");
+
+             });
+        }
+        ConsultarLenguajes();
+
+        $("#btnAgregarLenguaje").on("click", function () {
+            const accion = 5;
+
+            //ConsultarCursos();
+            DatosModalLenguaje(accion);
+        });
+
+        function DatosModalLenguaje(accion) {
+            $("#Accion").val(accion);
+            $('#Id').val('');
+            $('#langcode').val('');
+            $('#text').val('');
+            $("#ModalLenguaje").modal("show");
+        }
+    </script>

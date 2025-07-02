@@ -1,0 +1,320 @@
+﻿@model BetaClientesVM.Menu.MFunctionsVM
+
+@{
+    ViewBag.Title = "FunctionsIndex";
+    ViewBag.NombreModulo = "Menu";
+    ViewBag.TituloPagina = "Funciones";
+}
+
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h3 id="H3Colaborador"></h3>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 text-center"><h1>Funciones</h1></div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregarFuncion"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divListaFunciones"></div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Basic modal -->
+<div id="ModalFuncion" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;">Agregar Usuario</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            @Html.HiddenFor(model => model.FunctionsId)
+            @Html.HiddenFor(model => model.Accion)
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Code, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", placeholder = "Ejemplo: 100.00" } })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Url, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Url, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", placeholder = "Ejemplo: ../Usuarios/Index" } })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-2">
+                        @Html.LabelFor(model => model.Label_Text, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Label_Text, new { htmlAttributes = new { @class = "form-control", @autocomplete = " off", placeholder = "Ejemplo: Usuarios" } })
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="box1">
+                            <label class="caption" for="bootstrap-duallistbox-nonselected-list_duallistbox">Lista de todos los Usuarios disponibles</label>
+                            <span class="info-container"></span>
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divSelectUsuarios"></div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="box1">
+                            <label class="caption" for="bootstrap-duallistbox-nonselected-list_duallistbox">Lista de los Usuarios asignados</label>
+                            <span class="info-container"></span>
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divSelectUsuariosAsignados"></div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatosFuncion"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Basic modal -->
+
+<script>
+    function ConsultarUsuarios(FunctionsId) {
+    $.ajax({
+        type: "get",
+        url: '@Url.Action("ConsultarUsuariosSinAsignar", "Menu")',
+        data: { FunctionsId: FunctionsId }, // Incluir FunctionsId en los datos de la solicitud
+        contentType: "application/json; charset=utf-8",
+    }).done(function (result) {
+        $("#divSelectUsuarios").html(result);
+    }).fail(function (error) {
+        NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de usuarios.", "error");
+    });
+
+}
+    function ConsultarUsuariosAsignados(FunctionsId) {
+    $.ajax({
+        type: "get",
+        url: '@Url.Action("ConsultarUsuariosAsignados", "Menu")',
+        data: { FunctionsId: FunctionsId }, // Incluir FunctionsId en los datos de la solicitud
+        contentType: "application/json; charset=utf-8",
+    }).done(function (result) {
+        $("#divSelectUsuariosAsignados").html(result);
+    }).fail(function (error) {
+        NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de usuarios.", "error");
+    });
+}
+
+    function consultarFunciones() {
+        $.ajax({
+            type: "get",
+            url: '@Url.Action("ConsultarFunciones", "Menu")',
+            contentType: "application/json; charset=utf-8",
+        }).done(function (result) {
+            $("#divListaFunciones").html(result);
+            $('table').each(function () {
+                $(this).DataTable().destroy();
+                $(this).DataTable();
+            });
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de usuarios.", "error");
+        });
+    }
+    consultarFunciones();
+
+    $("#btnAgregarFuncion").on("click", function () {
+        const Default = 0;
+        ConsultarUsuarios(Default);
+        ConsultarUsuariosAsignados(Default);
+        const accion = 10;
+        $("#FunctionsId").val('');
+        $("#Code").val(''),
+            $("#Url").val(''),
+            $('#Label_Text').val('');
+        $("#Accion").val(accion);
+
+        // Cambiar el título del modal a "Agregar Función"
+        $("#ModalFuncion .modal-title").text("Agregar Función");
+        $("#ModalFuncion").modal("show");
+    });
+
+
+    function DatosModalFunciones(datosModal, accion) {
+        row = JSON.parse(datosModal);
+        $("#FunctionsId").val(row.FunctionsId);
+        $("#Accion").val(accion);
+        $("#Code").val(row.Code),
+        $("#Url").val(row.Url),
+        $('#Label_Text').val(row.Label_Text);
+        $('#selectPrincipal').val();
+
+        ConsultarUsuarios(row.FunctionsId);
+        ConsultarUsuariosAsignados(row.FunctionsId);
+        // Cambiar el título del modal a "Editar Función"
+        $("#ModalFuncion .modal-title").text("Editar Función");
+        $("#ModalFuncion").modal("show");
+    }
+
+
+
+
+
+    $("#btnGuardarDatosFuncion").on("click", function () {
+        // Obtener los IDs seleccionados del select
+        var opcionesSeleccionadas = ObtenerIdsSeleccionados();
+
+        // Crear un objeto con los datos de la función y los IDs seleccionados
+        var objFunction = {
+            Accion: $("#Accion").val(),
+            Code: $("#Code").val(),
+            Url: $("#Url").val(),
+            Label_Text: $("#Label_Text").val(),
+            FunctionsId: $("#FunctionsId").val(),
+
+            OpcionesSelectIDs: opcionesSeleccionadas
+        };
+
+            // Enviar la solicitud AJAX con los datos al controlador
+            AJAXGuardarDatos(objFunction);
+
+    });
+
+
+
+
+    function ObtenerIdsSeleccionados() {
+        // Seleccionar todas las opciones del multiselect
+        $("#SelectAsignados option").prop("selected", true);
+
+        // Obtener los IDs seleccionados del select
+        var opcionesSeleccionadas = $("#SelectAsignados").val();
+
+        // Imprimir los IDs seleccionados en la consola
+        console.log("IDs seleccionados del select:", opcionesSeleccionadas);
+
+        // Devolver los IDs seleccionados
+        return opcionesSeleccionadas;
+    }
+
+
+
+
+function AJAXGuardarDatos(objFunction) {
+   $.ajax({
+       type: 'post',
+       url: '@Url.Action("GestionarFunciones", "Menu")',
+       data: JSON.stringify({ objFunction: objFunction }),
+       contentType: 'application/json; charset=utf-8',
+   }).done(function (result) {
+       if (result.resultado == 1) {
+           location.reload();
+           ConsultarUsuarios();
+
+           $("#ModalFuncion").modal("hide");
+       } else {
+           location.reload();
+           NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+       }
+   }).fail(function (error) {
+       NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+   });
+}
+
+
+    function ObtenerDatos() {
+        let opcionesSeleccionadas = $("#selectPrincipal").val(); // Esto obtiene los IDs seleccionados del select
+        let objFunction = {
+            Accion: $("#Accion").val(),
+            Code: $("#Code").val(),
+            Url: $("#Url").val(),
+            Label_Text: $("#Label_Text").val(),
+            OpcionesSelectIDs: opcionesSeleccionadas // Asigna los IDs seleccionados al objeto
+        };
+        return objFunction;
+    }
+
+    function validarCampos() {
+        // Obtener los valores de los campos Code, Url y Label_Text
+        var code = $("#Code").val();
+        var url = $("#Url").val();
+        var label = $("#Label_Text").val();
+
+        // Verificar si alguno de los campos está vacío
+        if (code.trim() === '' || url.trim() === '' || label.trim() === '') {
+            // Mostrar un mensaje de alerta
+            NotificacionBasica("Datos incompletos", "Por favor completa todos los campos antes de agregar una Función", "error");
+            return false; // Devolver falso para indicar que la validación ha fallado
+        }
+
+        // Si todos los campos están completos, devolver verdadero
+        return true;
+    }
+
+
+function MensajeEliminacion(datosFunction) {
+    row = JSON.parse(datosFunction);
+
+    // Verificar si row es null
+    if (!row) {
+        NotificacionBasica("@ViewBag.TituloPagina", "Ocurrió un error al obtener los datos de la función.", "error");
+        return; // Salir de la función si row es null
+    }
+
+    swalInit.fire({
+        title: '@ViewBag.TituloPagina',
+        html: "<br>Se eliminará <b>" + row.Code + "</b><br> ¿Deseas Continuar?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+        cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: 'btn btn-primary rounded-pill',
+            cancelButton: 'btn btn-danger rounded-pill'
+        }
+    }).then(function (result) {
+        if (result.value) {
+            let objFunction = {
+                Accion: 11,
+                FunctionsId: row.FunctionsId
+            };
+            // Realizar la llamada AJAX para eliminar la función
+            $.ajax({
+                type: 'post',
+                url: '@Url.Action("GestionarFunciones", "Menu")',
+                data: JSON.stringify({ objFunction: objFunction }),
+                contentType: 'application/json; charset=utf-8',
+            }).done(function (result) {
+                if (result.resultado == 4) {
+                    // Si hay usuarios asignados, no realizar la recarga de la página
+                    NotificacionBasica("Usuarios Asignados", "No se pudo completar la operación.Porque la función tiene usuarios asignados", "error");
+                } else {
+                    // Si la operación se completó con éxito o hay otro tipo de error, recargar la página
+                    location.reload();
+                }
+            }).fail(function (error) {
+                // En caso de error en la solicitud AJAX, recargar la página
+                location.reload();
+                NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+            });
+        }
+    });
+}
+
+
+</script>

@@ -1,0 +1,295 @@
+﻿@model Tuple<BetaClientesVM.Menu.MSettingVM, List<BetaClientesVM.Menu.MSettingVM>>
+
+@{
+    ViewBag.Title = "SettingsIndex";
+    ViewBag.NombreModulo = "Menu";
+    ViewBag.TituloPagina = "Configuraciones";
+}
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h3></h3>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregar"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+                </div>
+
+                <table class="table datatable-basic small coloresTablas" width="100%" id="miTabla">
+                    <thead>
+                        <tr>
+                            <th>Propiedad</th>
+                            <th>Valor</th>
+                            <th class="text-center" id="idAcciones">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @if (Model.Item2 != null)
+                        {
+                            foreach (var row in Model.Item2)
+                            {
+
+                                <tr>
+                                    <td>@Html.DisplayFor(modelItem => row.property)</td>
+                                    <td>
+                                        @if (row.property.Equals("defaultPassword"))
+                                        {
+                                            <span>**********************</span>
+                                        }
+                                        else
+                                        {
+                                            @Html.DisplayFor(modelItem => row.value)
+                                        }
+                                    </td>
+                                    <td class="text-center" id="idButton">
+                                        @if (row.property.Equals("defaultUserImage"))
+                                        {
+                                           <span>Esta imagen no puede ser editada</span>
+                                        }
+                                        else
+                                        {
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="EditarCompanie('@Json.Encode(row)', '48')" title="Editar">
+                                                    <i class="fa fa-edit fa-1x"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacion('@Json.Encode(row)')" title="Eliminar">
+                                                    <i class="fas fa-trash fa-1x"></i>
+                                                </button>
+                                            </div>
+                                        }
+
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@*Basic modal*@
+<div id="ModalSetting" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"><span id="modalTittle"></span></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Item1.Accion)
+                    @Html.HiddenFor(model => model.Item1.Id)
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.property, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.property, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.property, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.value, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.value, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.value, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatos"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Basic modal*@
+
+@*Basic modal*@
+<div id="ModalSetting" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"><span id="modalTittle"></span></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Item1.Accion)
+                    @Html.HiddenFor(model => model.Item1.Id)
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.property, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.property, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.property, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.value, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.value, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.value, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatos"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Basic modal*@
+
+<script>
+    $("#btnAgregar").on("click", function () {
+        const accion = 47;
+        var modalTitle = document.getElementById('modalTittle');
+
+        modalTitle.innerText = "Agregar Configuración";
+        ModalAgregar(accion);
+    });
+
+    function ModalAgregar(accion) {
+        $("#Item1_Accion").val(accion);
+        $("#Item1_Id").val('');
+        // Limpiar el input de texto para el modal de menu
+        $("#Item1_property").val('');
+        $("#Item1_value").val('');
+        $("#ModalSetting").modal("show");
+
+    }
+
+    function validarCampos() {
+        property = $("#Item1_property").val();
+        value = $("#Item1_value").val();
+
+        if (!property) {
+            Swal.fire({
+                text: "Ingrese la Propiedad.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!value) {
+            Swal.fire({
+                text: "Ingrese el Valor.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+
+        return true;
+    }
+
+    $("#btnGuardarDatos").on("click", function () {
+        if (validarCampos()) {
+            AJAXGuardarDatos(ObtenerDatos());
+        } else {
+            console.log("Error");
+        }
+
+    });
+
+    function AJAXGuardarDatos(objSetting) {
+
+        console.log(objSetting);
+
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarConfiguraciones", "Menu")',
+            data: JSON.stringify({ objSetting: objSetting }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+
+            $("#ModalCompanie").modal("hide");
+            location.reload();
+
+            //SI OCURRE UN ERROR
+            if (result.resultado == 0) {
+                NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+            }
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+    function ObtenerDatos() {
+        let objSetting = {
+            Accion: $("#Item1_Accion").val(),
+            Id: $("#Item1_Id").val(),
+
+            property: $("#Item1_property").val(),
+            value: $("#Item1_value").val(),
+        };
+
+        return objSetting;
+    }
+
+    function EditarCompanie(datos, accion) {
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+
+        $("#Item1_Accion").val(accion);
+        $("#Item1_Id").val(row.Id);
+        $("#Item1_property").val(row.property);
+        $("#Item1_value").val(row.value);
+        var modalTitle = document.getElementById('modalTittle');
+
+        modalTitle.innerText = "Editar Configuración";
+
+        if (row.property === "defaultPassword") {
+            // Cambiar el tipo de campo a contraseña
+            $('#Item1_value').prop('type', 'password');
+        } else {
+            // Si no cumple con el criterio, asegúrate de que sea un campo de texto normal
+            $('#Item1_value').prop('type', 'text');
+        }
+
+        $("#ModalSetting").modal("show");
+    }
+
+     function MensajeEliminacion(datos) {
+        row = JSON.parse(datos);
+
+         swalInit.fire({
+             title: '@ViewBag.TituloPagina',
+             html: "<br>Se eliminara <b>" + row.property + "</b><br> ¿Deseas Continuar?",
+             icon: 'question',
+             showCancelButton: true,
+             confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+             cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+             buttonsStyling: false,
+             customClass: {
+                 confirmButton: 'btn btn-primary rounded-pill',
+                 cancelButton: 'btn btn-danger rounded-pill'
+             }
+         }).then(function (result) {
+             if (result.value) {
+                 let objCompanie = {
+                     Accion: 49,
+                     Id: row.Id
+                 };
+                 AJAXGuardarDatos(objCompanie)
+             }
+         });
+    }
+</script>

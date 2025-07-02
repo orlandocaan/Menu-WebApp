@@ -1,0 +1,147 @@
+﻿
+@model IEnumerable<BetaClientesVM.PML.PMLDetalleProgramaVM>
+
+
+<div class="table-responsive">
+    <table class="table small coloresTablas TablaDetallesPrograma" width="100%">
+        <thead>
+            <tr>
+                <th>Área</th>
+                <th>Equipo</th>
+                <th>Productos</th>
+                <th>Colaborador</th>
+                <th>Evidencias</th>
+                <th>Eliminar</th>
+                <th>Responsable</th>
+                <th>Supervisor</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+
+            @if (Model != null)
+            {
+                string nombreAreaAnterior = null;
+
+                foreach (var row in Model.OrderBy(area=>area.NombreDelArea).ThenBy(eq=>eq.DetPro_NombreEquipo).ToList())
+                {
+                    bool existeArea = nombreAreaAnterior != row.NombreDelArea;
+
+                    <tr>
+                        @if (existeArea)
+                        {
+                            //Si es la primera vez que se muestra el área
+                            var rowspanContador = Model.Count(x => x.NombreDelArea == row.NombreDelArea);
+                            <td rowspan="@rowspanContador">@row.NombreDelArea      
+                            <input type="hidden" name="DetPro_IdAreaPrograma" id="DetPro_IdAreaPrograma" value="@row.DetPro_IdAreaPrograma" />
+                            </td>
+                        }
+
+                        <td>@row.DetPro_NombreEquipo</td>
+                        <td>
+                            <input type="hidden" name="DetPro_IdDetalle" id="DetPro_IdDetalle" value="@row.DetPro_IdDetalle" />
+                            <input type="hidden" name="DetPro_IdArea" id="DetPro_IdArea" value="@row.DetPro_IdArea" />
+                            <input type="checkbox" name="DetPro_ProductoBaseActivo" value="1" class="productoBase" @(row.DetPro_ProductoBaseActivo == true ? "checked" : "") /> @Html.DisplayFor(modelItem => row.DetPro_NombreProductoBase)
+                            <input type="hidden" name="DetPro_IdProductoBase" value="@row.DetPro_IdProductoBase" class="productoBase" />
+                            <input type="hidden" name="DetPro_NombreProductoBase" value="@row.DetPro_NombreProductoBase" class="productoBase" />
+
+                            @if (row.DetPro_IdProductoAlt1 != "")
+                            {
+                                <br />
+                                <input type="checkbox" name="DetPro_ProductoAlt1Activo" value="@row.DetPro_IdProductoAlt1" class="productoAlterno1" @(row.DetPro_ProductoAlt1Activo == true ? "checked" : "") /> <b>Prod Alt 1</b> @Html.DisplayFor(modelItem => row.DetPro_NombreProductoAlt1)
+                                <input type="hidden" name="DetPro_IdProductoAlt1" value="@row.DetPro_IdProductoAlt1" class="productoAlterno1" />
+                                <input type="hidden" name="DetPro_NombreProductoAlt1" value="@row.DetPro_NombreProductoAlt1" class="productoAlterno1" />
+
+                            }
+                            @if (row.DetPro_IdProductoAlt2 != "")
+                            {
+                                <br />
+                                <input type="checkbox" name="DetPro_ProductoAlt2Activo" value="@row.DetPro_IdProductoAlt2" class="productoAlterno2" @(row.DetPro_ProductoAlt2Activo == true ? "checked" : "") /> <b>Prod Alt 2</b> @Html.DisplayFor(modelItem => row.DetPro_NombreProductoAlt2)
+                                <input type="hidden" name="DetPro_IdProductoAlt2" value="@row.DetPro_IdProductoAlt2" class="productoAlterno2" />
+                                <input type="hidden" name="DetPro_NombreProductoAlt2" value="@row.DetPro_NombreProductoAlt2" class="productoAlterno2" />
+                            }
+
+                        </td>
+                        <td class="text-center">
+                            <div style="position: relative;">
+                                <input type="hidden" name="DetPro_IdColaborador" value="@row.DetPro_IdColaborador" id="IdOperador@(row.NumeroLinea)" class="form-control" readonly />
+                                <input type="text" name="DetPro_NombreColaborador" value="@row.DetPro_NombreColaborador" id="NombreOperador@(row.NumeroLinea)" class="form-control" style="font-size: 11px;" onclick="BuscadorColaborador('@Json.Encode(row)', '@row.NumeroLinea');" placeholder="Click aquí" readonly />
+                                <i class="fas fa-search" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                            </div>
+                        </td>
+
+                        <td>
+                            <button class="btn btn-sm btn-warning rounded-pill">
+                                <i class="fas fa-file-image fa-1x"></i> Ver
+                            </button>
+                        </td>
+
+                        <td>
+                            <button type="button" class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacionLineaDetalle('@Json.Encode(row)')" title="Eliminar">
+                                <i class="fas fa-trash fa-1x"></i>
+                            </button>
+                        </td>
+
+                        @if (existeArea)
+                        {
+                            //Si es la primera vez que se muestra el área
+                            var rowspanContador = Model.Count(x => x.NombreDelArea == row.NombreDelArea);
+
+                            <td rowspan="@rowspanContador" class="text-center">
+                                <div style="position: relative;">
+                                    <input type="hidden" name="IdResponsable" value="@row.IdResponsable" id="IdResponsable@(row.NumeroLinea)" class="form-control" readonly />
+                                    <input type="text" name="NombreResponsable" value="@row.NombreResponsable" id="NombreResponsable@(row.NumeroLinea)" class="form-control" style="font-size: 11px;" onclick="BuscadorResponsable('@Json.Encode(row)', '@row.NumeroLinea');" placeholder="Click aquí" readonly />
+                                    <i class="fas fa-search" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                                </div>
+
+                                <button class="btn btn-sm btn-primary rounded-pill mt-1" id="btnFirmaResponsable@(row.NumeroLinea)" onclick="AgregarFirma('@Json.Encode(row)', 'Responsable')"><i class="fas fa-file-signature"></i> Firmar</button>
+                                <input type="hidden" name="CadenaFirmaResponsable" id="CadenaFirmaResponsable@(row.NumeroLinea)" />
+                                <input type="hidden" name="ComentariosResponsable" id="ComentariosResponsable@(row.NumeroLinea)" />
+
+                            </td>
+                        }
+
+
+                        @if (existeArea)
+                        {
+                            //Si es la primera vez que se muestra el área
+                            var rowspanContador = Model.Count(x => x.NombreDelArea == row.NombreDelArea);
+
+                            <td rowspan="@rowspanContador" class="text-center">
+                                <div style="position: relative;">
+                                    <input type="hidden" name="IdSupervisor" value="@row.IdSupervisor" id="IdSupervisor@(row.NumeroLinea)" class="form-control" readonly />
+                                    <input type="text" name="NombreSupervisor" value="@row.NombreSupervisor" id="NombreSupervisor@(row.NumeroLinea)" class="form-control" style="font-size: 11px;" onclick="BuscadorSupervisor('@Json.Encode(row)', '@row.NumeroLinea');" placeholder="Click aquí" readonly />
+                                    <i class="fas fa-search" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                                </div>
+
+                                <button class="btn btn-sm btn-primary rounded-pill mt-1" id="btnFirmaSupervisor@(row.NumeroLinea)" onclick="AgregarFirma('@Json.Encode(row)', 'Supervisor')"><i class="fas fa-file-signature"></i> Firmar</button>
+                                <input type="hidden" name="CadenaFirmaSupervisor" id="CadenaFirmaSupervisor@(row.NumeroLinea)" />
+                                <input type="hidden" name="ComentariosSupervisor" id="ComentariosSupervisor@(row.NumeroLinea)" />
+
+                            </td>
+                        }
+
+
+                    </tr>
+
+
+                    nombreAreaAnterior = row.NombreDelArea;
+                }
+
+
+
+
+
+            }
+
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.TablaDetallesPrograma').DataTable();
+    });
+</script>

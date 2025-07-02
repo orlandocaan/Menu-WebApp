@@ -1,0 +1,38 @@
+﻿@model IEnumerable<BetaClientesVM.Menu.MLabelVM>
+
+<table class="table datatable-basic small coloresTablas" width="100%" id="miTabla">
+    <thead>
+        <tr>
+            <th>Código del Lenguaje</th>
+            <th>Descripción del Lenguaje</th>
+            <th class="text-center" id="idAcciones">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @if (Model != null)
+        {
+            foreach (var row in Model)
+            {
+
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => row.langcode)</td>
+                    <td>@Html.DisplayFor(modelItem => row.text)</td>
+                    <td class="text-center" id="idButton">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="EditarLenguaje('@Json.Encode(row)', '6')" title="Editar">
+                                <i class="fa fa-edit fa-1x"></i>
+                            </button>
+                        </div>
+
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacion('@Json.Encode(row)')" title="Eliminar">
+                                <i class="fas fa-trash fa-1x"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

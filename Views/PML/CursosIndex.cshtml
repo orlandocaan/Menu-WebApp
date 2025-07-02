@@ -1,0 +1,379 @@
+﻿
+@model BetaClientesVM.PML.PMLCursosVM
+
+@{
+    ViewBag.Title = "PML Cursos Index";
+    ViewBag.NombreModulo = "PML";
+    ViewBag.TituloPagina = "Cursos Index";
+}
+
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregarCurso"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divListaCursos">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Basic modal -->
+<div id="ModalCursos" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Cursos</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Accion)
+                    @Html.HiddenFor(model => model.Cur_IdCurso)
+                    @Html.HiddenFor(model => model.Cur_IdArea)
+                    @Html.HiddenFor(model => model.Cur_IdEquipo)
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Cur_IdArea, htmlAttributes: new { @class = "control-label" })
+                        <div class="input-group">
+                            @Html.EditorFor(model => model.Cur_AreaNombre, new { htmlAttributes = new { @class = "form-control", autocomplete = "off", @readonly = "off" } })
+                            <button id="btnBuscarArea" type="button" class="btn btn-primary"><i class="fas fa fa-search"></i></button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Cur_IdEquipo, htmlAttributes: new { @class = "control-label" })
+                        <div class="input-group">
+                            @Html.EditorFor(model => model.Cur_EquipoNombre, new { htmlAttributes = new { @class = "form-control", autocomplete = "off", @readonly = "off" } })
+                            <button id="btnBuscarEquipos" type="button" class="btn btn-primary"><i class="fas fa fa-search"></i></button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-2">
+                        @Html.LabelFor(model => model.Cur_Nombre, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.Cur_Nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-2">
+                        @Html.LabelFor(model => model.Cur_Objetivos, htmlAttributes: new { @class = "control-label" })
+                        @Html.TextAreaFor(model => model.Cur_Objetivos, new { @class = "form-control", @autocomplete = "off", style = "height: 150px; min-height: 150px;" })
+                    </div>
+
+
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatosCursos"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalBuscarArea" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Buscador Área</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divBuscadorArea">
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div id="ModalBuscarEquipos" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Buscador Equipos</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divBuscadorEquipos">
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Basic modal -->
+
+
+
+<script>
+    $("#btnBorrarEquipos").on("click", function () {
+;
+    });
+
+    $("#btnBorrarArea").on("click", function () {
+        $("#Cur_IdArea").val('');
+        $("#Cur_AreaNombre").val('');
+
+
+    });
+
+
+    $("#btnBuscarArea").on("click", function () {
+
+        BuscarArea();
+
+    });
+    $("#btnBuscarEquipos").on("click", function () {
+        var nombreArea = $("#Cur_AreaNombre").val();
+        if (nombreArea == '' ) {
+
+                  NotificacionBasica("Datos incompletos", "Selecione un Área Porfavor", "error");
+        } else {
+
+            var area = $("#Cur_IdArea").val(); // Obtener el valor de $("#Cur_IdArea").val()
+            if (area === null || area === "") {
+                area = null; // Si area es null o una cadena vacía, asignar null a area
+            }
+            BuscarEquipo(area);
+
+        }
+
+    });
+
+    $("#btnAgregarCurso").on("click", function () {
+        $("#btnBuscarArea").prop("disabled", false);
+        $("#btnBuscarEquipos").prop("disabled", false);
+        const accion = 2;
+        //Para limpiar los datos a los elmentos del formulario
+        var datosModal = JSON.stringify({
+            Cur_IdCurso: 0,
+            Cur_Nombre: "",
+            Cur_IdEquipo: "",
+            Cur_Objetivos: "",
+            Cur_IdArea: "",
+            Cur_NombreArea: "",
+            Cur_EquipoNombre: ""
+
+        });
+        DatosModalCursos(datosModal, accion);
+
+    });
+    function DatosModalCursos(datosModal, accion) {
+        row = JSON.parse(datosModal);
+        $("#Accion").val(accion);
+        $("#Cur_IdCurso").val(row.Cur_IdCurso);
+        $("#Cur_Nombre").val(row.Cur_Nombre);
+        $("#Cur_IdEquipo").val(row.Cur_IdEquipo);
+        $("#Cur_Objetivos").val(row.Cur_Objetivos);
+        $("#Cur_IdArea").val(row.Cur_IdArea);
+        $("#Cur_AreaNombre").val(row.Cur_AreaNombre);
+        $("#Cur_EquipoNombre").val(row.Cur_EquipoNombre);
+
+        $("#ModalCursos").modal("show");
+
+    }
+    function ConsultarCursos()
+  {
+      $.ajax({
+          type       : "get",
+          url        : '@Url.Action("ConsultarCursos", "PML")',
+          contentType: "application/json; charset=utf-8",
+      }).done(function (result) {
+
+          $("#divListaCursos").html(result);
+
+          CargarTabla();
+
+
+      }).fail(function (error) {
+
+          NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de los Cursos.", "error");
+
+      });
+    }
+
+
+
+    function BuscarArea()
+    {
+          $.ajax({
+              type       : "get",
+              url        : '@Url.Action("BuscadorArea", "PML")',
+              contentType: "application/json; charset=utf-8",
+          }).done(function (result) {
+              $("#divBuscadorArea").html(result);
+              $("#ModalBuscarArea").modal("show");
+
+
+              //CargarTabla();
+
+
+          }).fail(function (error) {
+
+              NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de las Areas.", "error");
+
+          });
+    }
+
+
+function BuscarEquipo(area) {
+    // Verificar si el parámetro area es null
+    var datos = {};
+    if (area !== null) {
+        datos.area = area;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: '@Url.Action("BuscadorEquipos", "PML")',
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(datos),
+    }).done(function (result) {
+        $("#divBuscadorEquipos").html(result);
+        $("#ModalBuscarEquipos").modal("show");
+
+        CargarTabla();
+    }).fail(function (error) {
+        NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de Equipos.", "error");
+    });
+}
+
+
+
+    ConsultarCursos();
+
+  function CargarTabla() {
+      $('table').each(function () {
+          $(this).DataTable().destroy();
+          $(this).DataTable();
+
+      });
+
+      $("#ModalBuscarArea").modal("hide");
+      $("#ModalBuscarEquipos").modal("hide");
+
+    }
+
+
+
+    $("#btnGuardarDatosCursos").on("click", function () {
+        // Obtenemos los valores de los campos
+        var nombreCurso = $('#Cur_Nombre').val().trim();
+        var objetivosCurso = $('#Cur_Objetivos').val().trim();
+        var nombreArea = $('#Cur_AreaNombre').val().trim();
+        var nombreEquipo = $('#Cur_EquipoNombre').val().trim();
+
+        // Verificamos que los campos no estén vacíos
+        if (nombreCurso !== '' && objetivosCurso !== '' && (nombreArea !== '' || nombreEquipo !== '')) {
+            // Si todos los campos tienen datos, permitimos agregar el curso
+            AJAXGuardarDatosCursos(ObtenerDatos());
+        } else {
+
+            NotificacionBasica("Datos incompletos", "Por favor completa todos los campos antes de agregar un nuevo curso", "error");
+
+        }
+    });
+
+
+    function AJAXGuardarDatosCursos(objCursosVM) {
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarCursos", "PML")',
+            data: JSON.stringify({ objCursosVM: objCursosVM }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+            ConsultarCursos();
+            $("#ModalCursos").modal("hide");
+
+            //SI OCURRE UN ERROR
+            if (result.resultado == 0) {
+                NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+            }
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+
+    function ObtenerDatos() {
+        let objCursosVM = {
+            Accion: $("#Accion").val(),
+            Cur_IdCurso: $("#Cur_IdCurso").val(),
+            Cur_Nombre: $("#Cur_Nombre").val(),
+            Cur_IdEquipo: $("#Cur_IdEquipo").val(),
+            Cur_Objetivos: $("#Cur_Objetivos").val(),
+            Cur_IdArea: $("#Cur_IdArea").val(),
+
+        };
+
+        return objCursosVM;
+    }
+
+            function MensajeEliminacion(datosEquipo) {
+                row = JSON.parse(datosEquipo);
+
+                swalInit.fire({
+                    title: '@ViewBag.TituloPagina',
+                    html: "<br>Se eliminara <b>" + row.Cur_Nombre + "</b><br> ¿Deseas Continuar?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+                    cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: 'btn btn-primary rounded-pill',
+                        cancelButton: 'btn btn-danger rounded-pill'
+                    }
+                }).then(function (result) {
+                    if (result.value) {
+                        let objCursosVM = {
+                            Accion: 4,
+                            Cur_IdCurso: row.Cur_IdCurso
+                        };
+                        AJAXGuardarDatosCursos(objCursosVM)
+                    }
+                });
+            }
+
+
+
+
+
+
+
+
+</script>

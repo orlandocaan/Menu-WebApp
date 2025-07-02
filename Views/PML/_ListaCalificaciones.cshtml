@@ -1,0 +1,46 @@
+﻿@model IEnumerable<BetaClientesVM.PML.PMLCalificacionesVM>
+
+
+
+<table class="table datatable-basic small coloresTablas" width="100%" id="miTabla">
+    <thead>
+        <tr>
+            <th>Curso</th>
+            <th>Calificaciones</th>
+            <th>Archivo</th>
+            <th>Fecha de Vigencia</th>
+            <th>Fecha del Curso</th>
+            <th>Acciones</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            foreach (var row in Model)
+            {
+                // Calcula los días restantes hasta la fecha de vigencia
+                var diasRestantes = (row.Cal_FechaVigencia - DateTime.Now).Days;
+
+                // Agrega la clase CSS si faltan 10 días o menos para que venza
+                string claseFila = diasRestantes <= 10 ? "bg-danger" : "";
+
+                <tr class="@claseFila">
+                    <td id="nameCurso">@Html.DisplayFor(modelItem => row.NombreDelCurso) </td>
+                    <td>@Html.DisplayFor(modelItem => row.Cal_Calificacion)</td>
+                    <td>@Html.DisplayFor(modelItem => row.Cal_NombreDoc)</td>
+                    <td>@Html.DisplayFor(modelItem => row.Cal_FechaVigenciaFormateada)</td>
+                    <td>@Html.DisplayFor(modelItem => row.Cal_FechaCursoFormateada)</td>
+                    <td class="text-center" id="idButton">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="EditarCalificaciones('@Json.Encode(row)', '3')" title="Editar">
+                                <i class="fa fa-edit fa-1x"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+

@@ -1,0 +1,310 @@
+﻿@model BetaClientesVM.PML.PMLAreasVM
+@{
+    ViewBag.Title = "PML Areas Index";
+    ViewBag.NombreModulo = "PML";
+    ViewBag.TituloPagina = "Areas Index";
+
+    if (ViewBag.MensajeError != null)
+    {
+        <script>
+        $(document).ready(function () {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', '@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.MensajeError))', "warning");
+        });
+        </script>
+    }
+}
+
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregarAreas"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divListaAreas">
+                    </div>
+
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-5" id="divListaSubAreas">
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Basic modal -->
+<div id="ModalAreasSubAreas" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> <label id="txtTituloModal"></label> </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Accion)
+                    @Html.HiddenFor(model => model.Area_IdArea)
+                    @Html.HiddenFor(model => model.Area_IdAreaPadre)
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-2">
+                        @Html.LabelFor(model => model.Area_Nombre, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Area_Nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Area_Nombre, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Area_IdResponsable, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.Area_IdResponsable, ViewBag.cmbColaboradoresResponsable as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control " })
+                        @Html.ValidationMessageFor(model => model.Area_IdResponsable, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Area_IdSupervisor, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(model => model.Area_IdSupervisor, ViewBag.cmbColaboradoresSupervisor as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control " })
+                        @Html.ValidationMessageFor(model => model.Area_IdSupervisor, "", new { @class = "text-danger" })
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarAreaSubArea"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Basic modal -->
+
+
+
+
+
+
+<script>
+    function ConsultarAreas()
+    {
+        $.ajax({
+            type       : "get",
+            url        : '@Url.Action("ConsultarAreas", "PML")',
+            contentType: "application/json; charset=utf-8",
+        }).done(function (result) {
+
+            $("#divListaAreas").html(result);
+            CargarTabla();
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al consultar la lista de las Áreas.", "error");
+
+        });
+    }
+
+
+    ConsultarAreas();
+
+
+
+    $("#btnAgregarAreas").on("click", function () {
+        const accion = 3;
+
+        var objJSON = JSON.stringify({
+                        Area_IdArea       :   "",
+                        Area_IdAreaPadre  :   "",
+                        Area_Nombre       :   "",
+                        Area_IdResponsable:   "",
+                        Area_IdSupervisor :   ""
+                      });
+
+        DatosFormularioAreasSubAreas(objJSON, accion);
+
+    });
+
+
+
+    function DatosFormularioAreasSubAreas(objJSON, accion){
+        const row = JSON.parse(objJSON);
+
+        if (row.Area_IdArea === "" && row.Area_IdAreaPadre === "") {
+
+            $("#txtTituloModal").text("Información de la nueva área");
+        } else if (row.Area_IdArea === "" && row.Area_IdAreaPadre != "") {
+
+            $("#txtTituloModal").text("Información de la nueva subárea");
+        } else if (row.Area_IdArea != "" && row.Area_IdAreaPadre != "") {
+
+            $("#txtTituloModal").text("Editando información  de la subárea");
+        }
+        else
+        {
+
+            $("#txtTituloModal").text("Editando información del Área");
+        }
+
+
+        $("#Accion").val(accion);
+        $("#Area_IdArea").val(row.Area_IdArea);
+        $("#Area_IdAreaPadre").val(row.Area_IdAreaPadre);
+        $("#Area_Nombre").val(row.Area_Nombre);
+        $("#Area_IdResponsable").val(row.Area_IdResponsable);
+        $("#Area_IdSupervisor").val(row.Area_IdSupervisor);
+
+
+        $("#ModalAreasSubAreas").modal("show");
+
+    }
+
+
+
+    function AJAXGuardarDatosAreaSubArea(objAreasVM) {
+        //const row = JSON.parse(objAreasVM);
+
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarAreasYSubAreas", "PML")',
+            data       :    JSON.stringify({ objAreasVM: objAreasVM }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+
+            ConsultarAreas();
+            $("#ModalAreasSubAreas").modal("hide");
+
+            //Limpiamos div de subAreas
+            $("#divListaSubAreas").empty();
+            
+            if (parseInt(result.resultado) == 0) {
+                NotificationBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', result.mensaje, "error");
+            }
+
+        }).fail(function (error) {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+
+
+    $("#btnGuardarAreaSubArea").on("click", function () {
+        const mensajeValidacion = ValidacionCamposFormulario(ObtenerDatosFormulario());
+
+        if (mensajeValidacion === "") {
+            AJAXGuardarDatosAreaSubArea(ObtenerDatosFormulario());
+        } else {
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', mensajeValidacion, "warning");
+        }
+
+    });
+
+
+
+    function ObtenerDatosFormulario() {
+        let objAreasVM = {
+            Accion            :     $("#Accion").val(),
+            Area_IdArea       :     $("#Area_IdArea").val(),
+            Area_IdAreaPadre  :     $("#Area_IdAreaPadre").val(),
+            Area_Nombre       :     $("#Area_Nombre").val(),
+            Area_IdResponsable:     $("#Area_IdResponsable").val(),
+            Area_IdSupervisor :     $("#Area_IdSupervisor").val()
+        };
+
+        return objAreasVM;
+    }
+
+
+    function ValidacionCamposFormulario(objAreasVM) {
+        let mensaje = "";
+
+        if (objAreasVM.Area_Nombre == null || objAreasVM.Area_Nombre == "") {
+            mensaje += `${$('label[for="Area_Nombre"]').text()} es requerido. <br>`;
+        }
+
+        return mensaje;
+    }
+
+
+
+    function MensajeEliminacionArea(datosEquipo) {
+        const row =   JSON.parse(datosEquipo);
+
+        swalInit.fire({
+            title: '@ViewBag.TituloPagina',
+            html: "<br>Se eliminara <b>" + row.Area_Nombre + "</b><br> ¿Deseas Continuar?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+            cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn btn-primary rounded-pill',
+                cancelButton: 'btn btn-danger rounded-pill'
+            }
+        }).then(function (result) {
+            if (result.value) {
+                let objAreasVM = {
+                    Accion      :         5,
+                    Area_IdArea :    row.Area_IdArea
+                };
+
+                AJAXGuardarDatosAreaSubArea(objAreasVM)
+            }
+        });
+
+    }
+
+
+
+    function ConsultarSubAreas(idAreaPadre) {
+        $.ajax({
+            type       :    "get",
+            url        :    '@Url.Action("ConsultarSubAreas", "PML")',
+            data       :    { idAreaPadre: parseInt(idAreaPadre) },
+            contentType: "application/json; charset=utf-8",
+        }).done(function (result) {
+            $("#Area_IdAreaPadre").val(idAreaPadre);
+            $("#divListaSubAreas").html(result);
+            CargarTablaSecundaria();
+
+            var divListaSubAreas = document.getElementById("divListaSubAreas");
+            if (divListaSubAreas) {
+                divListaSubAreas.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+        }).fail(function (error) {
+
+            NotificacionBasica('@Html.Raw(HttpUtility.JavaScriptStringEncode(ViewBag.TituloPagina))', "Ocurrió un error al consultar la lista de las SubÁreas.", "error");
+
+        });
+    }
+
+
+
+
+    function AgregarSubArea()
+    {
+        const accion = 3;
+
+        var objJSON = JSON.stringify({
+            Area_IdArea         : "",
+            Area_IdAreaPadre    : $("#Area_IdAreaPadre").val(),
+            Area_Nombre         : "",
+            Area_IdResponsable  : "",
+            Area_IdSupervisor   : ""
+        });
+
+        DatosFormularioAreasSubAreas(objJSON, accion);
+    }
+
+
+
+</script>

@@ -1,0 +1,55 @@
+﻿@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+    var TieneRol = @ViewBag.RoleCode == null || @ViewBag.RoleCode.ToString() == "" ? false : true;
+}
+
+
+<!-- Login form -->
+<form class="login-form" action="@Url.Action("Login", "Default")" method="post">
+    <div class="card mb-0">
+        <div class="card-body">
+            <div class="text-center mb-3">
+                @*<i class="icon-reading icon-2x text-secondary border-secondary border-3 rounded-pill p-3 mb-3 mt-1"></i>*@
+                <img src="~/Images/BETA.png" width="100%" />
+                <h5 class="mb-0"><br />Accede a tu cuenta.</h5>
+                <span class="d-block text-muted">Proporciona tus credenciales a continuación</span>
+
+                @if (ViewBag.ErrorMessage!=null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Atencion!</strong> @ViewBag.ErrorMessage
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+
+
+            </div>
+
+            <div class="form-group form-group-feedback form-group-feedback-left">
+                <input type="text" name="username" class="form-control" placeholder="Nombre de usuario" autocomplete="off" required>
+                <div class="form-control-feedback">
+                    <i class="icon-user text-muted"></i>
+                </div>
+            </div>
+
+            <div class="form-group form-group-feedback form-group-feedback-left">
+                <input type="password" name="password" class="form-control" placeholder="Contraseña" autotomplete="off" required>
+                <div class="form-control-feedback">
+                    <i class="icon-lock2 text-muted"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
+            </div>
+
+            <div class="text-center">
+                @*<a href="#">Olvidé mi contraseña?</a>*@
+            </div>
+        </div>
+    </div>
+</form>
+<!-- /login form -->

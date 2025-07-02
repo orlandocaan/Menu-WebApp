@@ -1,0 +1,42 @@
+﻿
+@model IEnumerable<BetaClientesVM.PML.PMLCalificacionesVM>
+
+<div class="table-responsive">
+    <table class="table datatable-basic small coloresTablas buscadorColaboradores" width="100%">
+
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(label => label.NombreDelColaborador)</th>
+                <th>@Html.DisplayNameFor(label => label.NombreDelCurso)</th>
+                <th>@Html.DisplayNameFor(label => label.Cal_Calificacion)</th>
+                <th>@Html.DisplayNameFor(label => label.Cal_FechaVigencia)</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @if (Model != null)
+            {
+                foreach (var row in Model)
+                {
+                    <tr onclick="DatosColaboradorCalificado('@Json.Encode(row)');">
+                        <td> @Html.DisplayFor(modelItem => row.NombreDelColaborador)</td>
+                        <td> @Html.DisplayFor(modelItem => row.NombreDelCurso)</td>
+                        <td> @Html.DisplayFor(modelItem => row.Cal_Calificacion)</td>
+                        <td> @Html.DisplayFor(modelItem => row.Cal_FechaVigencia) </td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+
+
+
+

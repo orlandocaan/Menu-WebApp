@@ -1,0 +1,35 @@
+﻿@model IEnumerable<BetaClientesVM.Menu.MCatalogoOpcionVM>
+
+
+<table class="table datatable-basic small coloresTablas" width="100%">
+    <thead>
+        <tr>
+            <th> Opción</th>
+            <th>Orden</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @if (Model != null)
+        {
+            foreach (var row in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => row.Catv_Nombre)</td>
+                    <td>@Html.DisplayFor(modelItem => row.Catv_Orden)</td>
+                    <td class="text-center" id="idButton">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="EditarOpcion('@Json.Encode(row)')" title="Editar">
+                                <i class="fa fa-edit fa-1x"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger rounded-pill text-white mr-1" onclick="MensajeEliminacionOpcion('@Json.Encode(row)', '57')" title="Eliminar">
+                                <i class="fa fa-trash fa-1x"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

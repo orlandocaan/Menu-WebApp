@@ -1,0 +1,452 @@
+﻿@model BetaClientesVM.Menu.MPlantaVM
+
+@{
+    ViewBag.Title = "PlantasIndex";
+    ViewBag.NombreModulo = "Menu";
+    ViewBag.TituloPagina = "Planta";
+}
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h3 id="H3Colaborador"></h3>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregar"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                    <label class="font-weight-bold" style="text-align:right;">Empresa</label>
+                    @Html.DropDownListFor(model => model.Plan_IdEmpresa, ViewBag.cmbCompanies as IEnumerable<SelectListItem>, "Selecciona una opción", new { @class = "form-control comboEmpresa mb-4" })
+                    @Html.ValidationMessageFor(model => model.Plan_IdEmpresa, "", new { @class = "text-danger" })
+                </div>
+
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divLista"></div>
+
+        </div>
+    </div>
+</div>
+
+@*Basic modal*@
+<div id="ModalPlanta" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;">Agregar Planta</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Accion)
+                    @Html.HiddenFor(model => model.Plan_IdPlanta)
+                    @Html.HiddenFor(model => model.Plan_IdEmpresa)
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_Nombre, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Plan_Nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Plan_Nombre, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_Descripcion, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Plan_Descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Plan_Descripcion, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_Logo, htmlAttributes: new { @class = "font-weight-bold" })
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="Img" name="Buscar" onchange="mostrarNombreImg(this)" accept="image/*">
+                            <label class="custom-file-label text-muted" for="Img">Seleccione una imagen</label>
+                        </div>
+                        @Html.HiddenFor(model => model.Plan_Logo, new { })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_URL, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Plan_URL, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Plan_URL, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_Telefono, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Plan_Telefono, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Plan_Telefono, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_Fax, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Plan_Fax, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Plan_Fax, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_CP, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Plan_CP, new { htmlAttributes = new { @Type = "number", @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Plan_CP, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_Calle, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Plan_Calle, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Plan_Calle, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_Colonia, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Plan_Colonia, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Plan_Colonia, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_Ciudad, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Plan_Ciudad, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Plan_Ciudad, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Plan_Email, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Plan_Email, new { htmlAttributes = new { @type = "email", @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Plan_Email, "", new { @class = "text-danger" })
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatos"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Basic modal*@
+
+
+
+<script>
+
+     $(document).on("change", ".comboEmpresa ", function () {
+         var idEmpresa = $("#Plan_IdEmpresa").val();
+
+         if (idEmpresa > 0) {
+             ConsultarPlantas(idEmpresa);
+         }
+     });
+
+    function ConsultarPlantas(idEmpresa) {
+         $.ajax({
+             type       : "get",
+             url: '@Url.Action("ConsultarPlantas", "Menu")',
+             data: { idEmpresa: idEmpresa },
+             contentType: "application/json; charset=utf-8",
+         }).done(function (result) {
+
+             $("#divLista").html(result);
+
+             $('table').each(function () {
+                 $(this).DataTable().destroy();
+                 $(this).DataTable();
+             });
+
+         }).fail(function (error) {
+
+             NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de usuarios.", "error");
+
+         });
+    }
+
+    ConsultarPlantas();
+
+    $("#btnAgregar").on("click", function () {
+        const accion = 31;
+        var idEmpresa = $("#Plan_IdEmpresa").val();
+        //ConsultarCursos();
+        if (!idEmpresa) {
+            Swal.fire({
+                text: "Seleccione una empresa.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+        ModalAgregar(accion);
+    });
+
+    function ModalAgregar(accion) {
+        $("#Accion").val(accion);
+        $("#Plan_IdEmpresa").val($("#Plan_IdEmpresa").val());
+        // Limpiar el input de texto para el modal de usuarios
+        $("#Plan_Nombre").val('');
+        $("#Plan_Descripcion").val('');
+        $("#Plan_Logo").val('');
+        $("#Plan_URL").val('');
+        $("#Plan_CP").val('');
+        $("#Plan_Telefono").val('');
+        $("#Plan_Fax").val('');
+        $("#Plan_Calle").val('');
+        $("#Plan_Colonia").val('');
+        $("#Plan_Ciudad").val('');
+        $("#Plan_Email").val('');
+        $('#Img').next('.custom-file-label').html('Seleccione una imagen');
+        $("#ModalPlanta").modal("show");
+
+    }
+
+    function validarCampos() {
+
+        nombre = $("#Plan_Nombre").val();
+        descripcion = $("#Plan_Descripcion").val();
+        logo = $("#Plan_Logo").val();
+        url = $("#Plan_URL").val();
+        cp = $("#Plan_CP").val();
+        telefono = $("#Plan_Telefono").val();
+        fax = $("#Plan_Fax").val();
+        calle = $("#Plan_Calle").val();
+        colonia = $("#Plan_Colonia").val();
+        ciudad = $("#Plan_Ciudad").val();
+        email = $("#Plan_Email").val();
+
+        if (!nombre) {
+            Swal.fire({
+                text: "Ingrese el nombre de la planta.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!descripcion) {
+            Swal.fire({
+                text: "Ingrese la descripción.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!url) {
+            Swal.fire({
+                text: "Ingrese la url.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        } if (!telefono) {
+            Swal.fire({
+                text: "Ingrese el telefono.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        } if (!fax) {
+            Swal.fire({
+                text: "Ingrese el fax.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        } if (!cp) {
+            Swal.fire({
+                text: "Ingrese el CP.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        } if (!calle) {
+            Swal.fire({
+                text: "Ingrese la calle.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        } if (!colonia) {
+            Swal.fire({
+                text: "Ingrese la colonia.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        } if (!ciudad) {
+            Swal.fire({
+                text: "Ingrese la ciudad.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!email) {
+            Swal.fire({
+                text: "Ingrese el correo electrónico.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+
+        var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+        if (!emailRegex.test(email)) {
+            Swal.fire({
+                text: "Ingrese un correo electrónico valido.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+
+        return true;
+    }
+
+    $("#btnGuardarDatos").on("click", function () {
+        if (validarCampos()) {
+            AJAXGuardarDatos(ObtenerDatos());
+        } else {
+            console.log("Error");
+        }
+
+    });
+
+    function AJAXGuardarDatos(objPlanta) {
+
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarPlantas", "Menu")',
+            data: JSON.stringify({ objPlanta: objPlanta }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+            ConsultarPlantas(objPlanta.Plan_IdEmpresa);
+            $("#ModalPlanta").modal("hide");
+
+            //SI OCURRE UN ERROR
+            if (result.resultado == 0) {
+                NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+            }
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+    function ObtenerDatos() {
+        let objPlanta = {
+            Accion: $("#Accion").val(),
+            Plan_IdPlanta: $("#Plan_IdPlanta").val(),
+            Plan_IdEmpresa: $("#Plan_IdEmpresa").val(),
+            Plan_Nombre: $("#Plan_Nombre").val(),
+            Plan_Descripcion: $("#Plan_Descripcion").val(),
+            Plan_Logo: $("#Plan_Logo").val(),
+            Plan_URL: $("#Plan_URL").val(),
+            Plan_CP: $("#Plan_CP").val(),
+            Plan_Telefono: $("#Plan_Telefono").val(),
+            Plan_Fax: $("#Plan_Fax").val(),
+            Plan_Calle: $("#Plan_Calle").val(),
+            Plan_Colonia: $("#Plan_Colonia").val(),
+            Plan_Ciudad: $("#Plan_Ciudad").val(),
+            Plan_Email: $("#Plan_Email").val()
+        };
+
+        return objPlanta;
+    }
+
+    function mostrarNombreImg(input) {
+        var file = input.files[0]; // Obtener el archivo seleccionado
+        var fileName = input.files[0].name; // Obtener el nombre del archivo seleccionado
+        var label = input.nextElementSibling; // Obtener el elemento de la etiqueta siguiente al input
+
+        label.innerHTML = fileName; // Mostrar el nombre del archivo en la etiqueta
+        $("#Plan_Logo").val(fileName);
+
+        var reader = new FileReader(); // Crear un lector de archivos
+
+        reader.onload = function (e) {
+            var imageData = e.target.result; // Obtener el contenido del archivo como base64
+
+            imageData = imageData.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""); // Remover el prefijo de la cadena base64
+
+            // Asignar el arreglo de bytes al campo Img del formulario
+
+        };
+
+        reader.readAsDataURL(file); // Leer el archivo como base64
+    }
+
+    function EditarPlanta(datos, accion) {
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+
+        $("#Accion").val(accion);
+        $("#Plan_IdPlanta").val(row.Plan_IdPlanta);
+        $("#Plan_IdEmpresa").val(row.Plan_IdEmpresa);
+
+        $("#Plan_Nombre").val(row.Plan_Nombre);
+        $("#Plan_Descripcion").val(row.Plan_Descripcion);
+        $("#Plan_Logo").val(row.Plan_Logo);
+        $("#Plan_URL").val(row.Plan_URL);
+        $("#Plan_CP").val(row.Plan_CP);
+        $("#Plan_Telefono").val(row.Plan_Telefono);
+        $("#Plan_Fax").val(row.Plan_Fax);
+        $("#Plan_Calle").val(row.Plan_Calle);
+        $("#Plan_Colonia").val(row.Plan_Colonia);
+        $("#Plan_Ciudad").val(row.Plan_Ciudad);
+        $("#Plan_Email").val(row.Plan_Email);
+        $('#Img').next('.custom-file-label').html(row.Plan_Logo);
+
+        $("#ModalPlanta").modal("show");
+    }
+
+    function MensajeEliminacion(datos) {
+        row = JSON.parse(datos);
+
+        swalInit.fire({
+            title: '@ViewBag.TituloPagina',
+            html: "<br>Se eliminara <b>" + row.Plan_Nombre + "</b><br> ¿Deseas Continuar?",
+             icon: 'question',
+             showCancelButton: true,
+             confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+             cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+             buttonsStyling: false,
+             customClass: {
+                 confirmButton: 'btn btn-primary rounded-pill',
+                 cancelButton: 'btn btn-danger rounded-pill'
+             }
+        }).then(function (result) {
+             if (result.value) {
+                 let objRole = {
+                     Accion: 33,
+                     Plan_IdPlanta: row.Plan_IdPlanta,
+                     Plan_IdEmpresa: row.Plan_IdEmpresa
+
+                 };
+                 AJAXGuardarDatos(objRole)
+             }
+        });
+
+    }
+</script>

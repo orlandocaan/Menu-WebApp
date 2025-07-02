@@ -1,0 +1,315 @@
+﻿@model Tuple<BetaClientesVM.Menu.MCompanieVM, List<BetaClientesVM.Menu.MCompanieVM>>
+
+@{
+    ViewBag.Title = "CompaniesIndex";
+    ViewBag.NombreModulo = "Menu";
+    ViewBag.TituloPagina = "Empresas";
+}
+
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h3></h3>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregar"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+                </div>
+
+                <div class="">
+
+                    <table class="table datatable-basic small coloresTablas" width="100%" id="miTabla">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>RFC</th>
+                                <th>Nombre Corto</th>
+                                <th>Razón Social</th>
+                                <th>Clave ERP</th>
+                                <th>Fecha de Creación</th>
+                                <th class="text-center">Estatus</th>
+                                <th class="text-center" id="idAcciones">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @if (Model.Item2 != null)
+                            {
+                                foreach (var row in Model.Item2)
+                                {
+
+                                    <tr>
+                                        <td>@Html.DisplayFor(modelItem => row.Code)</td>
+                                        <td>@Html.DisplayFor(modelItem => row.RFC)</td>
+                                        <td>@Html.DisplayFor(modelItem => row.ShortName)</td>
+                                        <td>@Html.DisplayFor(modelItem => row.Name)</td>
+                                        <td>@Html.DisplayFor(modelItem => row.IdErp)</td>
+                                        <td>@Html.DisplayFor(modelItem => row.DateTimeCreate)</td>
+                                        <td class="text-center">
+                                            @if (row.Enabled)
+                                            {
+                                                <span class="badge badge-flat border-success text-success">Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-flat border-danger text-danger">Inactivo</span>
+                                            }
+                                        </td>
+                                        <td class="text-center" id="idButton">
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="EditarCompanie('@Json.Encode(row)', '43')" title="Editar">
+                                                    <i class="fa fa-edit fa-1x"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacion('@Json.Encode(row)')" title="Eliminar">
+                                                    <i class="fas fa-trash fa-1x"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@*Basic modal*@
+<div id="ModalCompanie" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"><span id="modalTitle"></span></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Item1.Accion)
+                    @Html.HiddenFor(model => model.Item1.Id)
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.Code, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.Code, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Code, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.RFC, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.RFC, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.RFC, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.Name, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.Name, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Name, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.ShortName, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.ShortName, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.ShortName, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.IdErp, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.IdErp, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.IdErp, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatos"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Basic modal*@
+
+<script>
+    $("#btnAgregar").on("click", function () {
+        const accion = 42;
+        var modalTitle = document.getElementById('modalTitle');
+
+        modalTitle.innerText = "Agregar Empresa";
+        ModalAgregar(accion);
+    });
+
+    function ModalAgregar(accion) {
+        $("#Item1_Accion").val(accion);
+        $("#Item1_Id").val('');
+        // Limpiar el input de texto para el modal de menu
+        $("#Item1_Item").val('');
+        $("#Item1_Descripcion").val('');
+        $("#Item1_Type").val('');
+        $("#Item1_Parent").val('');
+        $("#Item1_FunctionId").val('');
+        $("input[name='cr-i-l']").prop('checked', false);
+        $("#ModalCompanie").modal("show");
+
+    }
+
+    function validarCampos() {
+        code = $("#Item1_Code").val(),
+        rfc = $("#Item1_RFC").val(),
+        name = $("#Item1_Name").val(),
+        shortName = $("#Item1_ShortName").val(),
+        idErp = $("#Item1_IdErp").val()
+
+        if (!code) {
+            Swal.fire({
+                text: "Ingrese el Código.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!rfc) {
+            Swal.fire({
+                text: "Ingrese el RFC.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+        if (!name) {
+            Swal.fire({
+                text: "Ingrese la Rázon Social.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        } if (!shortName) {
+            Swal.fire({
+                text: "Ingrese el Nombre Corto.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        } if (!idErp) {
+            Swal.fire({
+                text: "Ingrese la Clave del cliente ERP.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+
+        return true;
+    }
+
+    $("#btnGuardarDatos").on("click", function () {
+        if (validarCampos()) {
+            AJAXGuardarDatos(ObtenerDatos());
+        } else {
+            console.log("Error");
+        }
+
+    });
+
+    function AJAXGuardarDatos(objCompanie) {
+
+        console.log(objCompanie);
+
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarEmpresas", "Menu")',
+            data: JSON.stringify({ objCompanie: objCompanie }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+
+            $("#ModalCompanie").modal("hide");
+            location.reload();
+
+            //SI OCURRE UN ERROR
+            if (result.resultado == 0) {
+                NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+            }
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+    function ObtenerDatos() {
+        let objComp = {
+            Accion: $("#Item1_Accion").val(),
+            Id: $("#Item1_Id").val(),
+
+            Code: $("#Item1_Code").val(),
+            RFC: $("#Item1_RFC").val(),
+            Name: $("#Item1_Name").val(),
+            ShortName: $("#Item1_ShortName").val(),
+            IdErp: $("#Item1_IdErp").val()
+        };
+
+        return objComp;
+    }
+
+    function EditarCompanie(datos, accion) {
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+
+        $("#Item1_Accion").val(accion);
+        $("#Item1_Id").val(row.Id);
+        $("#Item1_Code").val(row.Code);
+        $("#Item1_RFC").val(row.RFC);
+        $("#Item1_ShortName").val(row.ShortName);
+        $("#Item1_Name").val(row.Name);
+        $("#Item1_IdErp").val(row.IdErp);
+        var modalTitle = document.getElementById('modalTitle');
+
+        modalTitle.innerText = "Editar Empresa";
+
+        $("#ModalCompanie").modal("show");
+    }
+
+     function MensajeEliminacion(datos) {
+        row = JSON.parse(datos);
+
+         swalInit.fire({
+             title: '@ViewBag.TituloPagina',
+             html: "<br>Se eliminara <b>" + row.ShortName + "</b><br> ¿Deseas Continuar?",
+             icon: 'question',
+             showCancelButton: true,
+             confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+             cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+             buttonsStyling: false,
+             customClass: {
+                 confirmButton: 'btn btn-primary rounded-pill',
+                 cancelButton: 'btn btn-danger rounded-pill'
+             }
+         }).then(function (result) {
+             if (result.value) {
+                 let objCompanie = {
+                     Accion: 44,
+                     Id: row.Id
+                 };
+                 AJAXGuardarDatos(objCompanie)
+             }
+         });
+    }
+</script>

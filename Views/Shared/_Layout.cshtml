@@ -1,0 +1,759 @@
+﻿@{
+    ViewBag.Name = Session["Name"].ToString();
+    ViewBag.LastName = Session["LastName"].ToString();
+    ViewBag.Email = Session["Email"].ToString();
+    ViewBag.NombreDelUsuario = Session["Name"].ToString();
+    int idUsuario = Convert.ToInt32(Session["UserID"]);
+    int idRol = Convert.ToInt32(Session["RoleId"]);
+    string lenguaje = "es-MX";
+    ViewBag.Nombreempresa = Session["NombreEmpresa"].ToString(); 
+
+
+
+    Portal_BetaClientes.Controllers.DefaultController controlador = new Portal_BetaClientes.Controllers.DefaultController();
+    ViewBag.ListaHijos = controlador.ObtenerListaHijos(1, idUsuario, idRol, lenguaje).Result;
+    ViewBag.ListaPadres = controlador.ObtenerListaPadre(2, idUsuario, idRol, lenguaje).Result;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>@ViewBag.Title - Beta Portal Clientes</title>
+
+    @*DATOS DE LA PLANTILLA LIMITLESS*@    <!-- Global stylesheets -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+    <link href="~/Content/global_assets/css/icons/icomoon/styles.min.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/global_assets/css/icons/fontawesome/styles.min.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/assets/css/all.min.css" rel="stylesheet" type="text/css">
+    <!-- /global stylesheets -->
+    <!-- Core JS files -->
+    <script src="~/Content/global_assets/js/main/jquery.min.js"></script>
+    <script src="~/Content/global_assets/js/main/bootstrap.bundle.min.js"></script>
+    <!-- /core JS files -->
+    <!-- Theme JS files -->
+    <script src="~/Content/global_assets/js/plugins/visualization/d3/d3.min.js"></script>
+    <script src="~/Content/global_assets/js/plugins/visualization/d3/d3_tooltip.js"></script>
+    <script src="~/Content/global_assets/js/plugins/ui/moment/moment.min.js"></script>
+    <script src="~/Content/global_assets/js/plugins/pickers/daterangepicker.js"></script>
+
+    <!-- Theme JS files -->
+    <script src="~/Content/global_assets/js/plugins/notifications/sweet_alert.min.js"></script>
+    <script src="~/Content/global_assets/js/plugins/forms/selects/select2.min.js"></script>
+    <script src="~/Content/global_assets/js/plugins/forms/selects/bootstrap_multiselect.js"></script>
+    <script src="~/Content/global_assets/js/plugins/tables/datatables/datatables.min.js"></script>
+
+    <script src="~/Content/assets/js/app.js"></script>
+    <script src="~/Content/global_assets/js/demo_pages/dashboard.js"></script>
+    <script src="~/Content/InitializeSweetAlert.js"></script><!--Para inicializar sweetalert-->
+    <script src="~/Content/NotificacionesSweetAlert.js"></script><!--Para inicializar sweetalert-->
+    <script src="~/Content/global_assets/js/demo_pages/datatables_basic.js"></script>
+    <script src="~/Content/global_assets/js/demo_pages/components_popups.js"></script>
+    <!-- /theme JS files -->
+    @*DATOS DE LA PLANTILLA LIMITLESS*@
+
+
+    <!-- Estilos Personalizados del proyecto -->
+    <link href="~/Content/EstilosComunes.css" rel="stylesheet" type="text/css" />
+
+
+    <!-- Enlaces calendario datepicker-->
+    <script src="~/Content/datepicker/jquery-ui.js"></script>
+    @*<script src="~/Content/datepicker/jquery-3.6.0.js"></script>*@
+
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .message-input {
+            flex-shrink: 0;
+        }
+
+        .chat-online {
+            color: #34ce57;
+        }
+
+        .chat-offline {
+            color: #e4606d;
+        }
+
+        .chat-message-left,
+        .chat-message-right {
+            display: flex;
+            flex-shrink: 0;
+        }
+
+        .chat-message-left {
+            margin-right: auto;
+        }
+
+        .chat-message-right {
+            flex-direction: row-reverse;
+            margin-left: auto;
+        }
+
+        .py-3 {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+
+        .px-4 {
+            padding-right: 1.5rem !important;
+            padding-left: 1.5rem !important;
+        }
+
+        .border-top {
+            border-top: 1px solid #dee2e6 !important;
+        }
+
+        #chat-box {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            z-index: 9999; 
+        }
+
+        .chat-box-header {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .chat-box-header button {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.2em;
+                cursor: pointer;
+            }
+
+            .chat-box-header select {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                font-size: inherit;
+                padding: 5px;
+                flex-grow: 1;
+                margin: 0 10px; /* Margen añadido */
+            }
+
+        .chat-box-body,
+        .chat-box-footer {
+            display: none; /* Hide by default */
+        }
+
+        .chat-box-body {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            height: 300px;
+        }
+
+        .chat-box-footer {
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+            .chat-box-footer input {
+                flex-grow: 1;
+                margin-right: 5px;
+            }
+
+        .chat-messages {
+            max-height: 100%;
+            overflow-y: auto;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: none;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            font-size: inherit;
+            padding: 5px;
+            flex-grow: 1;
+            margin: 0 10px; /* Margen añadido */
+        }
+    </style>
+
+</head>
+<body>
+
+    @*AQUI VA EL MENU SUPERIOR (TOP BAR) DE PLANTILLA LIMITLESS*@
+    <!-- Main navbar -->
+    <div class="navbar navbar-expand-lg navbar-dark navbar-static colorMenu">
+        <div class="d-flex flex-1 d-lg-none">
+
+            <button class="navbar-toggler sidebar-mobile-main-toggle" type="button">
+                <i class="icon-paragraph-justify3"></i>
+            </button>
+        </div>
+
+        <div class="navbar-brand text-center text-lg-left">
+            @*<a href="index.html" class="d-inline-block">
+                    <img src="~/Content/global_assets/images/logo_light.png" class="d-none d-sm-block" alt="">
+                    <img src="~/Content/global_assets/images/logo_icon_light.png" class="d-sm-none" alt="">
+                </a>*@
+        </div>
+
+        <div class="collapse navbar-collapse order-2 order-lg-1" id="navbar-mobile">
+
+        </div>
+
+        <ul class="navbar-nav flex-row order-1 order-lg-2 flex-1 flex-lg-0 justify-content-end align-items-center">
+            <li class="nav-item nav-item-dropdown-lg dropdown dropdown-user h-100">
+                <a href="#" class="navbar-nav-link navbar-nav-link-toggler dropdown-toggle d-inline-flex align-items-center h-100" data-toggle="dropdown">
+                    <img src="~/Content/global_assets/images/placeholders/placeholder.jpg" class="rounded-pill mr-lg-2" height="34" alt="">
+                    <span class="d-none d-lg-inline-block">@ViewBag.NombreDelUsuario</span>
+                </a>
+
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a href="#" id="btnModalPerfil" class="dropdown-item "><i class="icon-user-plus"></i> Mi perfil</a>
+                    <a href="#" id="btnLogout" class="dropdown-item"><i class="icon-switch2"></i> Cerrar Sesión</a>
+                </div>
+            </li>
+        </ul>
+
+    </div>
+    <!-- /main navbar -->
+    @*AQUI VA EL MENU SUPERIOR (TOP BAR) DE PLANTILLA LIMITLESS*@
+
+
+
+
+
+
+    @*AQUI VA EL MENU VERTICAL Y CONTENIDO DE LA PAGINA LIMITLESS*@
+    <!-- Page content -->
+    <div class="page-content">
+        @*MENU VERTICAL*@
+        <!-- Main sidebar -->
+        <div class="sidebar sidebar-dark sidebar-main sidebar-expand-lg colorMenu">
+
+            <!-- Sidebar content -->
+            <div class="sidebar-content">
+
+                @*ESTO ES LA IMAGEN E INFORMACION DE MENU VERTICAL EN PARTE SUPERIOR*@
+                <div class="sidebar-section sidebar-user my-1">
+                    <div class="sidebar-section-body">
+                        <div class="media">
+                            <a href="#" class="mr-3">
+                                <img src="~/Content/global_assets/images/placeholders/placeholder.jpg" class="rounded-circle" alt="">
+                            </a>
+
+                            <div class="media-body">
+                                <div class="font-weight-semibold">@ViewBag.NombreEmpresa</div>
+                                <div class="font-size-sm line-height-sm opacity-50">
+                                </div>
+                            </div>
+
+                            <div class="ml-3 align-self-center">
+                                <button type="button" class="btn btn-outline-light-100 text-white border-transparent btn-icon rounded-pill btn-sm sidebar-control sidebar-main-resize d-none d-lg-inline-flex">
+                                    <i class="icon-transmission"></i>
+                                </button>
+
+                                <button type="button" class="btn btn-outline-light-100 text-white border-transparent btn-icon rounded-pill btn-sm sidebar-mobile-main-toggle d-lg-none">
+                                    <i class="icon-cross2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*ESTO ES LA IMAGEN E INFORMACION DE MENU VERTICAL EN PARTE SUPERIOR*@
+
+
+                @*AQUI VAN LOS REGISTROS PADRES E HIJOS (MENU DINAMICO)*@
+                <div class="sidebar-section">
+                    <ul class="nav nav-sidebar" data-nav-type="accordion">
+
+                        <li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-xs">Opciones del Menú</div> <i class="icon-menu" title="Main"></i></li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("Index", "Default")" class="nav-link">
+                                <i class="fas fa-home"></i>
+                                <span>
+                                    Dashboard
+                                </span>
+                            </a>
+                        </li>
+
+
+                        @if (ViewBag.ListaPadres != null)
+                        {
+                            var listaPadres = ViewBag.ListaPadres;
+                            foreach (var padre in listaPadres)
+                            {
+                                <li class="nav-item nav-item-submenu">
+                                    <a href="#" class="nav-link"><i class="@padre.Icon"></i> <span>@padre.Label</span></a>
+                                    <ul class="nav nav-group-sub" data-submenu-title="@padre.Label" data-submenu>
+                                        @if (ViewBag.ListaHijos != null)
+                                        {
+                                            var listaHijos = ViewBag.ListaHijos;
+                                            foreach (var hijos in listaHijos)
+                                            {
+                                                if (padre.Item == hijos.Parent)
+                                                {
+                                                    <li class="nav-item"><a href="@hijos.Url" class="nav-link active">@hijos.Label</a></li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                            }
+
+                        }
+
+                    </ul>
+                </div>
+                @*AQUI VAN LOS REGISTROS PADRES E HIJOS (MENU DINAMICO)*@
+
+
+            </div>
+            <!-- /sidebar content -->
+
+        </div>
+        <!-- /main sidebar -->
+        @*MENU VERTICAL*@
+
+
+
+
+
+
+
+
+        <!-- Main content -->
+        <div class="content-wrapper">
+
+            <!-- Inner content -->
+            <div class="content-inner">
+
+
+                @*TITULO EN PARTE SUPERIOR DEBAJO DEL TOP BAR*@
+                <div class="page-header page-header-light">
+                    <div class="breadcrumb-line breadcrumb-line-light header-elements-lg-inline">
+                        <div class="d-flex">
+                            <div class="breadcrumb">
+                                <a href="@Url.Action("Index", "Default")" class="breadcrumb-item"><i class="icon-home2 mr-2"></i> Inicio</a>
+                                @if (ViewBag.NombreModulo != null)
+                                {
+                                    <span class="breadcrumb-item active">@ViewBag.NombreModulo</span>
+                                    <span class="breadcrumb-item active">@ViewBag.TituloPagina</span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                @*TITULO EN PARTE SUPERIOR DEBAJO DEL TOP BAR*@
+
+
+
+                <!-- Basic modal -->
+                <div id="ModalDatosPerfilUsuario" class="modal fade" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header headerModal">
+                                <h5 class="modal-title"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Mi Perfil</h5>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                                        <label for="Name" class="font-weight-bold">Nombre</label>
+                                        <input type="text" id="Name" name="Name" value="@ViewBag.Name" class="form-control" autocomplete="off">
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                                        <label for="LastName" class="font-weight-bold">Apellidos</label>
+                                        <input type="text" id="LastName" name="LastName" value="@ViewBag.LastName" class="form-control" autocomplete="off">
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                                        <label for="Email" class="font-weight-bold">Email</label>
+                                        <input type="email" id="Email" name="Email" value="@ViewBag.Email" class="form-control" autocomplete="off">
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                                        <label for="Password" class="font-weight-bold">Contraseña (Completar solo si deseas cambiarla).</label>
+                                        <input type="password" id="Password" name="Password" value="" class="form-control" autocomplete="off">
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+                            <div class="modal-footer mt-2">
+                                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                                <button type="button" class="btn btn-primary rounded-pill" id="btnActualizarInformacionUsuario"><i class="fas fa-save fa-1x"></i> Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Basic modal -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Main charts -->
+
+                    @RenderBody()
+
+                </div>
+                <!-- /content area -->
+                <!-- Footer -->
+                <div class="navbar navbar-expand-lg navbar-light border-bottom-0 border-top">
+                    <div class="text-center d-lg-none w-100">
+                        <button type="button" class="navbar-toggler">
+                            &copy; Beta Clientes - @DateTime.Now.Year
+
+                        </button>
+                    </div>
+
+                    <div class="navbar-collapse collapse" id="navbar-footer">
+                        <span class="navbar-text">
+                            &copy; Beta Clientes - @DateTime.Now.Year
+                        </span>
+                    </div>
+                </div>
+                <!-- /footer -->
+
+            </div>
+            <!-- /inner content -->
+
+        </div>
+        <!-- /main content -->
+
+    </div>
+    <!-- /page content -->
+    @*AQUI VA EL MENU VERTICAL Y CONTENIDO DE LA PAGINA LIMITLESS*@
+
+
+    <div id="chat-box" class="chat-box">
+        <div class="chat-box-header">
+            <span>Mensajes</span>
+            <div>
+                <select id="userSelect">
+                    <!-- Opción por defecto -->
+                    <option value="">Seleccionar usuario...</option>
+                </select>
+                <button onclick="toggleChatBox()">&#8211;</button>
+                <button onclick="closeChatBox()">×</button>
+            </div>
+        </div>
+        <div class="chat-box-body">
+            <div class="messages" id="divConversasiones">
+                <!-- Conversation messages will be loaded here -->
+            </div>
+        </div>
+        <div class="chat-box-footer">
+            <input id="idMessageInput" type="text" class="form-control" placeholder="Type your message">
+            <button id="idSendButton" class="btn btn-primary">Send</button>
+        </div>
+    </div>
+
+
+
+    <script>
+        const idUsuario = @Html.Raw(idUsuario);
+        var UserId;
+
+        function obtenerUsuarios() {
+            $.ajax({
+                url: '@Url.Action("ObtenerListaUsuarios", "Menu")', // Ruta de la acción del controlador
+                type: 'GET', // Método HTTP GET
+                success: function (data) {
+                    // Llenar el select con los usuarios obtenidos
+                    console.log(data);
+                    llenarSelectUsuarios(data);
+                },
+                error: function () {
+                    console.error('Error al obtener la lista de usuarios');
+                }
+            });
+        }
+
+        function llenarSelectUsuarios(data) {
+            var select = document.getElementById("userSelect");
+            select.innerHTML = ""; // Limpiar opciones anteriores
+            select.add(new Option("Seleccionar usuario...", "")); // Opción por defecto
+            data.forEach(function (user) {
+                // Asumiendo que 'UserName' es el campo que quieres mostrar
+                if (user.UserId != idUsuario) {
+                    let name = user.Name + ' ' + user.LastName;
+                    var option = new Option(name, user.UserId);
+                    select.add(option);
+                }
+            });
+        }
+
+            // Llamar a la función para obtener la lista de usuarios al cargar la página
+            document.addEventListener("DOMContentLoaded", function () {
+                obtenerUsuarios();
+
+                var select = document.getElementById("userSelect");
+                select.addEventListener("change", function () {
+                    UserId = this.value; 
+                    var selectedUserName = this.options[this.selectedIndex].text;
+
+                    ConsultarConversasion(UserId);
+                });
+
+                var currentUrl = window.location.href;
+                console.log("Current URL:", currentUrl);
+
+                // Ejemplo: Cerrar el chat box solo si la URL contiene "closeChat"
+                if (currentUrl.includes("PruebaIndex")) {
+                    closeChatBox();
+                }
+            });
+
+        function toggleChatBox() {
+            var chatBoxBody = document.querySelector('.chat-box-body');
+            var chatBoxFooter = document.querySelector('.chat-box-footer');
+            if (chatBoxBody.style.display === 'none') {
+                chatBoxBody.style.display = 'block';
+                chatBoxFooter.style.display = 'flex';
+            } else {
+                chatBoxBody.style.display = 'none';
+                chatBoxFooter.style.display = 'none';
+            }
+        }
+
+        function closeChatBox() {
+            document.getElementById('chat-box').style.display = 'none';
+        }
+
+        // Set chat box to minimized state by default
+        document.addEventListener("DOMContentLoaded", function () {
+            toggleChatBox();
+        });
+
+        function ConsultarConversasion(idUsuario) {
+            $.ajax({
+                 type: 'post',
+                 url: '@Url.Action("ConsultarConversasion", "Menu")',
+                 data: JSON.stringify({ idUserSecundary: idUsuario }),
+                 contentType: 'application/json; charset=utf-8',
+            }).done(function (result) {
+
+                 $("#divConversasiones").html(result);
+                //SI OCURRE UN ERROR
+             if (result.resultado == 0) {
+                 NotificacionBasica("@ViewBag.Title", result.mensaje, "error");
+             }
+            }).fail(function (error) {
+                 NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+            });
+        }
+
+        $('#idSendButton').click(function () {
+            const message = $('#idMessageInput').val();
+            const idConversationRight = $('#divConversasiones .chat-message-right:last').data('idconversation');
+            const idConversationLeft = $('#divConversasiones .chat-message-left:last').data('idconversation');
+            let id;
+
+            if (idConversationRight !== undefined && idConversationRight !== null) {
+                id = idConversationRight;
+            } else if (idConversationLeft !== undefined && idConversationLeft !== null) {
+                id = idConversationLeft;
+            } else {
+                id = null;
+            }
+
+            if (message.trim() !== '') {
+                if (idConversationLeft != null || idConversationRight != null) {
+
+                    let objMessage = {
+                        Accion: 64,
+                        UserId1: idUsuario,
+                        IdConversation: id,
+                        Content: message
+                    }
+
+                    $.ajax({
+                        type: "post",
+                        url: '@Url.Action("ManageConversation", "Menu")',
+                        data: JSON.stringify({ objMessage: objMessage }),
+                        contentType: "application/json; charset=utf-8",
+                    }).done(function (result) {
+
+                        $("#messageInput").val('');
+                        ConsultarConversasion(UserId);
+
+                    }).fail(function (error) {
+
+                    });
+                } else {
+                    let objMessage = {
+                        Accion: 63,
+                        UserId1: idUsuario,
+                        UserId2: UserId,
+                        Content: message
+                    }
+
+                    $.ajax({
+                        type: "post",
+                        url: '@Url.Action("ManageConversation", "Menu")',
+                        data: JSON.stringify({ objMessage: objMessage }),
+                        contentType: "application/json; charset=utf-8",
+                    }).done(function (result) {
+
+                    }).fail(function (error) {
+
+                    });
+                }
+            }
+        });
+
+
+        // Función para iniciar el polling
+        function startPolling() {
+            // Llama a ConsultarConversasion cada 5 segundos
+            setInterval(function () {
+                if (UserId !== undefined && UserId !== null) {
+                    ConsultarConversasion(UserId);
+                }
+            }, 5000); // 5000 milisegundos = 5 segundos
+        }
+
+        // Inicia el polling cuando el documento esté listo
+        $(document).ready(function() {
+            startPolling();
+        });
+
+
+        function CambiarDatosUsuario() {
+            var objUsers = CapturarDatosUsuario();
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ActualizarInformacionUsuario", "Default")',
+                data: '{ objUsers:' + JSON.stringify(objUsers) + '}',
+                contentType: "application/json; charset=utf-8",
+            }).done(function (result) {
+                $("#ModalDatosPerfilUsuario").modal("hide");
+                NotificacionBasica("Mi Perfil", "La información ha sido actualizada con éxito. Te recomendamos cerrar sesión y volver a iniciar para aplicar los cambios.", "success");
+            }).fail(function (error) {
+                $("#ModalDatosPerfilUsuario").modal("hide");
+
+                NotificacionBasica("Mi Perfil", "Ocurrió un error. Por favor, inténtalo de nuevo.", "error");
+            });
+        }
+
+
+        function CapturarDatosUsuario() {
+            var objUsers = {
+                Name: $("#Name").val(),
+                LastName: $("#LastName").val(),
+                Email: $("#Email").val(),
+                Password: $("#Password").val()
+            };
+
+            return objUsers;
+        }
+
+
+        $("#btnActualizarInformacionUsuario").on("click", function () {
+            CambiarDatosUsuario();
+        });
+
+
+
+        $('#btnLogout').on('click', function () {
+            swalInit.fire({
+                title: 'Beta Clientes',
+                text: "¿Estás seguro de que deseas cerrar tu sesión?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+                cancelButtonText:  '<i class="fas fa-times"></i> No, cancelar!',
+                buttonsStyling: false,
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill',
+                    cancelButton: 'btn btn-danger rounded-pill'
+                }
+            }).then(function (result) {
+                if (result.value) {
+                    window.location.href ="@Url.Action("Logout", "Default")";
+                }
+            });
+        });
+
+
+        function CargarTabla() {
+            $('.coloresTablas').each(function () {
+                $(this).DataTable().destroy();
+                $(this).DataTable();
+            });
+        }
+
+        function CargarTablaSecundaria() {
+            $('.coloresTablasSecundario').each(function () {
+                $(this).DataTable().destroy();
+                $(this).DataTable();
+            });
+        }
+
+
+
+        $(function () {
+            $(".calendario").datepicker({
+                closeText: 'Cerrar',
+                prevText: '<Ant',
+                nextText: 'Sig>',
+                currentText: 'Hoy',
+                monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+                monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+                dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+                dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+                weekHeader: 'Sm',
+                dateFormat: 'dd/mm/yy',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: ''
+            });
+        });
+
+    </script>
+
+
+
+</body>
+</html>
+
+

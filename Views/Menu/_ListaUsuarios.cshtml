@@ -1,0 +1,76 @@
+﻿@model IEnumerable<BetaClientesVM.Menu.MUserVM>
+
+<table class="table datatable-basic small coloresTablas" width="100%" id="miTabla">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th>Apellidos</th>
+            <th>Email</th>
+            <th>Tipo de usuario</th>
+            <th>Imagen</th>
+            <th>Estatus</th>
+            <th class="text-center" id="idAcciones">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @if (Model != null)
+        {
+            foreach (var row in Model)
+            {
+
+                <tr>
+                    <td id="nameCurso">@Html.DisplayFor(modelItem => row.UserName)</td>
+                    <td>@Html.DisplayFor(modelItem => row.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => row.LastName)</td>
+                    <td>@Html.DisplayFor(modelItem => row.Email)</td>
+                    <td>@Html.DisplayFor(modelItem => row.Code)</td>
+                    <td>
+                        @if (row.Img.Count() > 0)
+                        {
+                            <img src="data:image/jpeg;base64,@System.Convert.ToBase64String(row.Img)" style="width:130px; height:60px;" class="col-xs-12 col-sm-10 col-md-12" />
+                        }
+                        else
+                        {
+                            <img src="~/images/SystemConfigImages/defaultUserImage.png" style="width:130px; height:60px;" class="col-xs-12 col-sm-10 col-md-12" />
+                        }
+                    </td>
+                    <td>
+                        @if (row.Enabled)
+                        {
+                            <span class="badge badge-flat border-success text-success">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-flat border-danger text-danger">Inactivo</span>
+                        }
+                    </td>
+                    <td class="text-center" id="idButton">
+                        @if (row.Enabled)
+                        {
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="DesactivarUsuario('@Json.Encode(row)', '7')" title="Desactivar">
+                                    <i class="fa fa-ban fa-1x"></i>
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-success rounded-pill text-white ml-1" onclick="ActivarUsuario('@Json.Encode(row)', '7')" title="Activar">
+                                    <i class="fa fa-check fa-1x"></i>
+                                </button>
+                            </div>
+                        }
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="EditarUsuario('@Json.Encode(row)', '6')" title="Editar">
+                                <i class="fa fa-edit fa-1x"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

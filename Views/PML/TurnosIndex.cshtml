@@ -1,0 +1,239 @@
+﻿
+@model BetaClientesVM.PML.PMLTurnosVM
+
+@{
+    ViewBag.Title = "PML Turnos Index";
+    ViewBag.NombreModulo = "PML";
+    ViewBag.TituloPagina = "Turnos Index";
+}
+
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregarTurnos"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divListaTurnos">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Basic modal -->
+<div id="ModalTurnos" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-ls">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"> Turnos</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Tur_Id)
+                    @Html.HiddenFor(model => model.Accion, new { Value = 1 })
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-4">
+                        @Html.LabelFor(model => model.Tur_Descripcion, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.Tur_Descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", id = "Tur_Descripcion" } })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-4">
+                        @Html.LabelFor(model => model.Tur_HoraEntrada, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.Tur_HoraEntrada, new { htmlAttributes = new { @type = "time", @class = "form-control", @autocomplete = "off", id = "Tur_HoraEntrada" } })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-4">
+                        @Html.LabelFor(model => model.Tur_HoraSalida, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.Tur_HoraSalida, new { htmlAttributes = new { @type = "time", @class = "form-control", @autocomplete = "off", id = "Tur_HoraSalida" } })
+                    </div>
+
+
+
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatosTurnos"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Basic modal -->
+
+
+
+<script>
+    ConsultarTurnos();
+    $("#btnAgregarTurnos").on("click", function () {
+        const accion = 1;
+        var datosModal = JSON.stringify({
+
+            Tur_Id: "",
+            Tur_Descripcion: "",
+            Tur_HoraEntrada: "",
+            Tur_HoraSalida: ""
+
+        });
+        DatosModalTurnos(datosModal, accion);
+
+    });
+    function DatosModalTurnos(datosModal, accion) {
+        var row = JSON.parse(datosModal);
+        $("#Accion").val(accion);
+        $("#Tur_Descripcion").val(row.Tur_Descripcion);
+        $("#Tur_Id").val(row.Tur_Id);
+
+        // Convertir las marcas de tiempo UNIX a objetos Date
+        var horaEntradaDate = new Date(parseInt(row.Tur_HoraEntrada.substr(6)));
+        var horaSalidaDate = new Date(parseInt(row.Tur_HoraSalida.substr(6)));
+
+        // Formatear las horas en formato de 24 horas
+        var horaEntrada = horaEntradaDate.getHours().toString().padStart(2, '0') + ':' + horaEntradaDate.getMinutes().toString().padStart(2, '0');
+        var horaSalida = horaSalidaDate.getHours().toString().padStart(2, '0') + ':' + horaSalidaDate.getMinutes().toString().padStart(2, '0');
+
+        $("#Tur_HoraEntrada").val(horaEntrada);
+        $("#Tur_HoraSalida").val(horaSalida);
+
+
+        $("#ModalTurnos").modal("show");
+    }
+
+
+
+
+
+    function AJAXGuardarDatosTurnos(objTurnosVM) {
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarTurnos", "PML")',
+            data: JSON.stringify({ objTurnosVM: objTurnosVM }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+          ConsultarTurnos();
+            $("#ModalTurnos").modal("hide");
+
+            //SI OCURRE UN ERROR
+            if (result.resultado == 0) {
+                NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+            }
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+
+    $("#btnGuardarDatosTurnos").on("click", function () {
+        // Obtenemos los valores de los campos
+        var Tur_Descripcion = $('#Tur_Descripcion').val().trim();
+        var Tur_HoraEntrada = $('#Tur_HoraEntrada').val().trim();
+        var Tur_HoraSalida = $('#Tur_HoraSalida').val().trim();
+
+        console.log(Tur_HoraEntrada);
+        console.log(Tur_HoraSalida);
+
+        // Verificamos que los campos no estén vacíos
+        if (Tur_Descripcion !== '' && Tur_HoraEntrada !== '' && Tur_HoraSalida !== '') {
+            // Verificamos si la hora de entrada es mayor que la hora de salida
+            var horaEntrada = new Date('2000-01-01 ' + Tur_HoraEntrada); // Creamos un objeto de fecha con la hora de entrada
+            var horaSalida = new Date('2000-01-01 ' + Tur_HoraSalida); // Creamos un objeto de fecha con la hora de salida
+            if (horaEntrada > horaSalida) {
+                // Si la hora de entrada es mayor que la hora de salida, mostramos un mensaje de error
+                NotificacionBasica("Error de horario", "La hora de entrada debe ser menor que la hora de salida", "error");
+            } else {
+                // Si todos los campos tienen datos y la hora de entrada es menor que la hora de salida, permitimos agregar el turno
+                AJAXGuardarDatosTurnos(ObtenerDatos());
+            }
+        } else {
+            // Si algún campo está vacío, mostramos un mensaje de error
+            NotificacionBasica("Datos incompletos", "Por favor completa todos los campos antes de agregar un nuevo Turno", "error");
+        }
+    });
+
+
+    function ObtenerDatos() {
+        let objTurnosVM = {
+            Accion: $("#Accion").val(),
+            Tur_Id: $("#Tur_Id").val(),
+            Tur_Descripcion: $("#Tur_Descripcion").val(),
+            Tur_HoraEntrada: $("#Tur_HoraEntrada").val(),
+            Tur_HoraSalida: $("#Tur_HoraSalida").val(),
+
+
+        };
+
+        return objTurnosVM;
+    }
+       function ConsultarTurnos()
+ {
+     $.ajax({
+         type       : "get",
+         url        : '@Url.Action("ConsultarTurnos", "PML")',
+         contentType: "application/json; charset=utf-8",
+     }).done(function (result) {
+
+         $("#divListaTurnos").html(result);
+
+         CargarTabla();
+
+
+     }).fail(function (error) {
+
+         NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de los Turnos.", "error");
+
+     });
+    }
+
+
+
+function MensajeEliminacion(datosEquipo) {
+    row = JSON.parse(datosEquipo);
+
+    swalInit.fire({
+        title: '@ViewBag.TituloPagina',
+        html: "<br>Se eliminara <b>" + row.Tur_Descripcion + "</b><br> ¿Deseas Continuar?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+        cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: 'btn btn-primary rounded-pill',
+            cancelButton: 'btn btn-danger rounded-pill'
+        }
+    }).then(function (result) {
+        if (result.value) {
+            let objTurnosVM = {
+                Accion: 3,
+                Tur_Id: row.Tur_Id
+            };
+
+            // Mostrar los datos antes de enviar la solicitud AJAX
+            console.log("Datos enviados a AJAXGuardarDatosTurnos:");
+            console.log(objTurnosVM);
+
+            // Enviar solicitud AJAX
+            AJAXGuardarDatosTurnos(objTurnosVM);
+        }
+    });
+}
+
+
+
+</script>
+

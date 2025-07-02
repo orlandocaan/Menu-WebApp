@@ -1,0 +1,532 @@
+﻿@model Tuple<BetaClientesVM.Menu.MCatalogoTipoVM, List<BetaClientesVM.Menu.MCatalogoTipoVM>>
+
+@{
+    ViewBag.Title = "CatalogosIndex";
+    ViewBag.NombreModulo = "Menu";
+    ViewBag.TituloPagina = "Catálogos";
+}
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h3></h3>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregar"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+                </div>
+
+                <div class="">
+
+                    <table class="table datatable-basic small coloresTablas" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th class="text-center" id="idAcciones">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @if (Model.Item2 != null)
+                            {
+                                foreach (var row in Model.Item2)
+                                {
+
+                                    <tr>
+                                        <td>@Html.DisplayFor(modelItem => row.Catt_Nombre)</td>
+                                        <td class="text-center" id="idButton">
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="EditarCatalogo('@Json.Encode(row)')" title="Editar">
+                                                    <i class="fa fa-edit fa-1x"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacion('@Json.Encode(row)', '56')" title="Eliminar">
+                                                    <i class="fas fa-trash fa-1x"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@*Basic modal*@
+<div id="ModalCatalogo" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"><span id="modalTitle"></span></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Item1.Accion)
+                    @Html.HiddenFor(model => model.Item1.Catt_IdCatalogo)
+                    @Html.HiddenFor(model => model.Item1.IdCatalogoOpcion)
+
+                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 mt-2">
+                        @Html.LabelFor(model => model.Item1.Catt_Nombre, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.Catt_Nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @style = "width: 350px; text-align: justify;" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Catt_Nombre, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-2 align-content-end ">
+                        <button id="btnGuardarCodigo" type="button" class="btn btn-primary rounded-pill " onclick="GuardarDatos(1,52)"><i class="fas fa-save fa-1x"></i> Guardar Código</button>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 mt-3">
+                        @Html.LabelFor(model => model.Item1.Opcion, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.Opcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Opcion, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 mt-3">
+                        @Html.LabelFor(model => model.Item1.Orden, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.Orden, new { htmlAttributes = new { @type = "number", @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Orden, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-3  align-content-end ">
+                        <button id="btnGuardarOpcion" type="button" class="btn btn-primary rounded-pill" onclick="GuardarDatos(2,53)"><i class="fas fa-save fa-1x"></i> Guardar Opción</button>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-4">
+                        <div id="divListaOpciones"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer mt-2">
+                    <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal" onclick="recargarPagina()"><i class="fas fa-times"></i> Cerrar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+    @*Basic modal*@
+
+    @*Basic modal*@
+    <div id="ModalEdit" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header headerModal">
+                    <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"><span id="modalTitle"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                    <div class="row">
+                        @Html.HiddenFor(model => model.Item1.Accion)
+                        @Html.HiddenFor(model => model.Item1.Catt_IdCatalogo)
+                        @Html.HiddenFor(model => model.Item1.IdCatalogoOpcion)
+
+                        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 mt-2">
+                            @Html.LabelFor(model => model.Item1.Catt_Nombre, htmlAttributes: new { @class = "font-weight-bold" })
+                            @Html.EditorFor(model => model.Item1.Catt_Nombre, new { htmlAttributes = new { @id = "NombreEdit", @class = "form-control", @autocomplete = "off", @style = "width: 350px; text-align: justify;" } })
+                            @Html.ValidationMessageFor(model => model.Item1.Catt_Nombre, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-2 align-content-end ">
+                            <button id="btnGuardarCodigo" type="button" class="btn btn-primary rounded-pill " onclick="GuardarDatosEdit(1,54)"><i class="fas fa-save fa-1x"></i> Guardar Código</button>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 mt-3">
+                            @Html.LabelFor(model => model.Item1.Opcion, htmlAttributes: new { @class = "font-weight-bold" })
+                            @Html.EditorFor(model => model.Item1.Opcion, new { htmlAttributes = new { @id = "OpcionEdit", @class = "form-control", @autocomplete = "off" } })
+                            @Html.ValidationMessageFor(model => model.Item1.Opcion, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 mt-3">
+                            @Html.LabelFor(model => model.Item1.Orden, htmlAttributes: new { @class = "font-weight-bold" })
+                            @Html.EditorFor(model => model.Item1.Orden, new { htmlAttributes = new { @id = "OrdenEdit", @type = "number", @class = "form-control", @autocomplete = "off" } })
+                            @Html.ValidationMessageFor(model => model.Item1.Orden, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mt-3  align-content-end ">
+                            <button id="btnGuardarOpcion" type="button" class="btn btn-primary rounded-pill" onclick="GuardarDatosEdit(2,55)"><i class="fas fa-save fa-1x"></i> Guardar Opción</button>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-4">
+                            <div id="divListaOpcEdit"></div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer mt-2">
+                        <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal" onclick="recargarPagina()"><i class="fas fa-times" ></i> Cerrar</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+ @*Basic modal*@
+
+<script>
+    CargaOpcion(0);
+    $("#btnAgregar").on("click", function () {
+        const accion = 42;
+        var modalTitle = document.getElementById('modalTitle');
+
+        modalTitle.innerText = "Agregar Código";
+        ModalAgregar(accion);
+    });
+
+    function ModalAgregar(accion) {
+        $("#Item1_Accion").val('');
+        $("#Item1_Catt_IdCatalogo").val('');
+        // Limpiar el input de texto para el modal de menu
+        $("#Item1_Catt_Nombre").val('');
+        $("#Item1_Opcion").val('');
+        $("#Item1_Orden").val('');
+
+        CambiarEstatus(false);
+
+        $("#ModalCatalogo").modal("show");
+
+    }
+
+    function CargaOpcion(idCatalogo) {
+        $.ajax({
+            url: '@Url.Action("ListaCatOpciones", "Menu")',
+            type: 'POST',
+            data: { idCatalogo: idCatalogo },
+            success: function (response) {
+                $('#divListaOpciones').html(response);
+                $('table').each(function () {
+                    $(this).DataTable().destroy();
+                    $(this).DataTable();
+                });
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error('Error en la solicitud AJAX:', errorThrown);
+            }
+        });
+    }
+
+    function validarCampos(tipo) {
+         var opcion = $("#Item1_Opcion").val();
+         var orden = $("#Item1_Orden").val();
+         var nombre = $("#Item1_Catt_Nombre").val();
+
+         switch (tipo) {
+             case 1:
+                 if (!nombre) {
+                     Swal.fire({
+                         text: "Ingrese el Código.",
+                         icon: "warning",
+                         customClass: {
+                             confirmButton: 'btn btn-primary rounded-pill',
+                             cancelButton: 'btn btn-danger rounded-pill'
+                         }
+                     });
+                     return;
+                 }
+                 return true;
+             case 2:
+                 if (!opcion) {
+                     Swal.fire({
+                         text: "Ingrese la Opcion.",
+                         icon: "warning",
+                         customClass: {
+                             confirmButton: 'btn btn-primary rounded-pill',
+                             cancelButton: 'btn btn-danger rounded-pill'
+                         }
+                     });
+                     return;
+                 }
+                 if (!orden) {
+                     Swal.fire({
+                         text: "Ingrese el Orden.",
+                         icon: "warning",
+                         customClass: {
+                             confirmButton: 'btn btn-primary rounded-pill',
+                             cancelButton: 'btn btn-danger rounded-pill'
+                         }
+                     });
+
+                     return;
+                 }
+                 return true;
+         }
+
+     }
+
+    function GuardarDatos(tipo, accion) {
+
+        $("#Item1_Accion").val(accion);
+             if (validarCampos(tipo)) {
+                 AJAXGuardarDatos(ObtenerDatos());
+             }
+
+     }
+
+     function AJAXGuardarDatos(objCatalogo) {
+
+         if (objCatalogo.Accion == 52) {
+             $.ajax({
+                 type: 'post',
+                 url: '@Url.Action("InsertCatalogType", "Menu")',
+                 data: JSON.stringify({ objCatalog: objCatalogo }),
+                 contentType: 'application/json; charset=utf-8',
+             }).done(function (result) {
+
+                 $("#Item1_Catt_IdCatalogo").val(result),
+
+                 CambiarEstatus(true);
+
+             }).fail(function (error) {
+                 NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+             });
+
+         } else {
+             console.log(objCatalogo);
+            $.ajax({
+                type: 'post',
+                url: '@Url.Action("GestionarCatalogos", "Menu")',
+                data: JSON.stringify({ objCatalogo: objCatalogo }),
+                contentType: 'application/json; charset=utf-8',
+            }).done(function (result) {
+                var intValue = parseInt(objCatalogo.Catt_IdCatalogo);
+
+                console.log(intValue);
+                CargaOpcion(intValue);
+
+            }).fail(function (error) {
+                NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+            });
+         }
+
+
+     }
+
+     function ObtenerDatos() {
+         let objCatalogo = {
+             Accion: $("#Item1_Accion").val(),
+             Catt_IdCatalogo: $("#Item1_Catt_IdCatalogo").val(),
+             Catt_Nombre: $("#Item1_Catt_Nombre").val(),
+             Opcion: $("#Item1_Opcion").val(),
+             Orden: $("#Item1_Orden").val(),
+             idCatalogoOpcion: $("#Item1_IdCatalogoOpcion").val(),
+         };
+         return objCatalogo;
+    }
+
+    function CambiarEstatus(activate) {
+        var nombreInput = document.getElementById("Item1_Catt_Nombre");
+        var guardarBtnC = document.getElementById("btnGuardarCodigo");
+        var opcionInput = document.getElementById("Item1_Opcion");
+        var ordenInput = document.getElementById("Item1_Orden");
+        var guardarBtnO = document.getElementById("btnGuardarOpcion");
+
+        // Establecer el estado de los elementos según el valor de activate
+        nombreInput.disabled = activate;
+        guardarBtnC.disabled = activate;
+        opcionInput.disabled = !activate;
+        ordenInput.disabled = !activate;
+        guardarBtnO.disabled = !activate;
+    }
+
+    function EditarCatalogo(datos) {
+        row = JSON.parse(datos);
+
+        CargarOpcionEdit(row.Catt_IdCatalogo);
+
+        $("#Item1_Catt_IdCatalogo").val(row.Catt_IdCatalogo);
+        $("#NombreEdit").val(row.Catt_Nombre);
+        $("#OpcionEdit").val('');
+        $("#OrdenEdit").val('');
+        $("#ModalEdit").modal("show");
+    }
+
+    function EditarOpcion(datos, accion){
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+    }
+
+    function CargarOpcionEdit(idCatalogo) {
+        $.ajax({
+            url: '@Url.Action("ListaCatOpciones", "Menu")',
+            type: 'POST',
+            data: { idCatalogo: idCatalogo },
+            success: function (response) {
+                $('#divListaOpcEdit').html(response);
+                $('table').each(function () {
+                    $(this).DataTable().destroy();
+                    $(this).DataTable();
+                });
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error('Error en la solicitud AJAX:', errorThrown);
+            }
+        });
+    }
+
+    function validarCamposEdit(tipo) {
+         var opcion = $("#OpcionEdit").val();
+         var orden = $("#OrdenEdit").val();
+         var nombre = $("#NombreEdit").val();
+
+         switch (tipo) {
+             case 1:
+                 if (!nombre) {
+                     Swal.fire({
+                         text: "Ingrese el Código.",
+                         icon: "warning",
+                         customClass: {
+                             confirmButton: 'btn btn-primary rounded-pill',
+                             cancelButton: 'btn btn-danger rounded-pill'
+                         }
+                     });
+                     return;
+                 }
+                 return true;
+             case 2:
+                 if (!opcion) {
+                     Swal.fire({
+                         text: "Ingrese la Opcion.",
+                         icon: "warning",
+                         customClass: {
+                             confirmButton: 'btn btn-primary rounded-pill',
+                             cancelButton: 'btn btn-danger rounded-pill'
+                         }
+                     });
+                     return;
+                 }
+                 if (!orden) {
+                     Swal.fire({
+                         text: "Ingrese el Orden.",
+                         icon: "warning",
+                         customClass: {
+                             confirmButton: 'btn btn-primary rounded-pill',
+                             cancelButton: 'btn btn-danger rounded-pill'
+                         }
+                     });
+
+                     return;
+                 }
+                 return true;
+         }
+
+     }
+
+    function GuardarDatosEdit(tipo, accion) {
+
+        $("#Item1_Accion").val(accion);
+             if (validarCamposEdit(tipo)) {
+                 AJAXGuardarDatosEdit(ObtenerDatosEdit());
+             }
+
+     }
+
+    function AJAXGuardarDatosEdit(objCatalogo) {
+        console.log(objCatalogo);
+            $.ajax({
+                type: 'post',
+                url: '@Url.Action("GestionarCatalogos", "Menu")',
+                data: JSON.stringify({ objCatalogo: objCatalogo }),
+                contentType: 'application/json; charset=utf-8',
+            }).done(function (result) {
+                var intValue = parseInt(objCatalogo.Catt_IdCatalogo);
+
+                CargarOpcionEdit(intValue);
+
+            }).fail(function (error) {
+                NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+            });
+    }
+
+    function ObtenerDatosEdit() {
+        let objCatalogo = {
+            Accion: $("#Item1_Accion").val(),
+            Catt_IdCatalogo: $("#Item1_Catt_IdCatalogo").val(),
+            Catt_Nombre: $("#NombreEdit").val(),
+            Opcion: $("#OpcionEdit").val(),
+            Orden: $("#OrdenEdit").val(),
+            idCatalogoOpcion: $("#Item1_IdCatalogoOpcion").val(),
+        };
+        return objCatalogo;
+    }
+
+    function EditarOpcion(datos) {
+        row = JSON.parse(datos);
+
+        $("#Item1_IdCatalogoOpcion").val(row.Catv_IdOpcion);
+        $("#OpcionEdit").val(row.Catv_Nombre);
+        $("#OrdenEdit").val(row.Catv_Orden);
+    }
+
+    function MensajeEliminacionOpcion(datos, accion) {
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+
+        swalInit.fire({
+            title: '@ViewBag.TituloPagina',
+            html: "<br>Se eliminara <b>" + row.Catv_Nombre + "</b><br> ¿Deseas Continuar?",
+             icon: 'question',
+             showCancelButton: true,
+             confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+             cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+             buttonsStyling: false,
+             customClass: {
+                 confirmButton: 'btn btn-primary rounded-pill',
+                 cancelButton: 'btn btn-danger rounded-pill'
+             }
+        }).then(function (result) {
+             if (result.value) {
+                 let objRole = {
+                     Accion: accion,
+                     idCatalogoOpcion: row.Catv_IdOpcion,
+                     Catt_IdCatalogo: row.Catv_IdCatalogo
+                 };
+                 AJAXGuardarDatosEdit(objRole);
+             }
+        });
+    }
+
+    function MensajeEliminacion(datos, accion) {
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+
+        swalInit.fire({
+            title: '@ViewBag.TituloPagina',
+            html: "<br>Se eliminara <b>" + row.Catt_Nombre + "</b><br> ¿Deseas Continuar?",
+             icon: 'question',
+             showCancelButton: true,
+             confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+             cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+             buttonsStyling: false,
+             customClass: {
+                 confirmButton: 'btn btn-primary rounded-pill',
+                 cancelButton: 'btn btn-danger rounded-pill'
+             }
+        }).then(function (result) {
+             if (result.value) {
+                 let objRole = {
+                     Accion: accion,
+                     Catt_IdCatalogo: row.Catt_IdCatalogo
+                 };
+                 AJAXGuardarDatosEdit(objRole);
+            }
+            location.reload();
+        });
+
+        
+    }
+
+    function recargarPagina() {
+        location.reload(); // O puedes usar window.location.reload();
+    }
+
+</script>

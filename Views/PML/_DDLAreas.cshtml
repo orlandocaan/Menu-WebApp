@@ -1,0 +1,47 @@
+﻿
+@model  IEnumerable<Portal_BetaClientes.ViewModels.Areas>
+
+<div class="body">
+    <label for="ddlAreas" class="col-md-2 control-label">Área</label>
+    <div class="row">
+        
+        <div class="col-md-3">
+            <select class="form-control">
+                <option value="opt1">Selecciona un área</option>
+                    @if (Model.Count() == 0)
+                    {
+                        <option>No hay áreas disponibles</option>
+                    }
+                    @foreach (var area in Model)
+                    {
+                        <option value="@area.Area_IdArea">@area.Area_Nombre</option>
+                    }
+            </select>
+        </div>
+        <!-- Button para desplegar tabla de acuerdo a Areas -->
+        <div class="ml-auto mr-5">
+            <button type="submit" class="btn btn-primary rounded-pill mr-8" data-toggle="modal" onclick="">
+                <i class="fas fa-plus-circle fa-1x mr-"></i>Agregar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-5">
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="bg-light">
+                <tr>
+                    <th scope="col">Área</th>
+                    <th scope="col">Curso</th>
+                    <th scope="col">Operador</th>
+                    <th scope="col">Calificación</th>
+                    <th scope="col">Evidencia</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+    </div>
+</div>

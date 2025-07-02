@@ -1,0 +1,395 @@
+﻿@model Tuple<BetaClientesVM.Menu.MCarouselVM, List<BetaClientesVM.Menu.MCarouselVM>>
+
+@{
+    ViewBag.Title = "Prueba";
+    ViewBag.NombreModulo = "Menu";
+    ViewBag.TituloPagina = "Carrusel";
+}
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h3></h3>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregar"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+                </div>
+
+                <div class="">
+
+                    <table class="table datatable-basic small coloresTablas" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Titulo</th>
+                                <th>Mensaje</th>
+                                <th>Ruta de la imagen</th>
+                                <th>Fecha Inicio</th>
+                                <th>Fecha Fin</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Item2 != null)
+                            {
+                                foreach (var row in Model.Item2)
+                                {
+
+                                    <tr>
+                                        <td>@Html.DisplayFor(modelItem => row.Crsl_Title)</td>
+                                        <td>@Html.DisplayFor(modelItem => row.Crsl_Message)</td>
+                                        <td>@Html.DisplayFor(modelItem => row.Crsl_Img)</td>
+                                        <td>@Html.DisplayFor(modelItem => row.Crsl_DateStart)</td>
+                                        <td>@Html.DisplayFor(modelItem => row.Crsl_DateEnd)</td>
+                                        <td class="text-center" id="idButton">
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="EditarCarrusel('@Json.Encode(row)', '60')" title="Editar">
+                                                    <i class="fa fa-edit fa-1x"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacion('@Json.Encode(row)')" title="Eliminar">
+                                                    <i class="fas fa-trash fa-1x"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@*Basic modal*@
+<div id="ModalCarousel" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;"><span id="modalTitle"></span></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row"
+                     @Html.HiddenFor(model => model.Item1.Accion)
+                     @Html.HiddenFor(model => model.Item1.Crsl_IdCarousel)
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.Crsl_Title, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.Crsl_Title, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Crsl_Title, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.Crsl_Message, htmlAttributes: new { @class = "font-weight-bold" })
+                        <textarea id="Item1_Crsl_Message" rows="3" cols="3" class="form-control" placeholder="Enter your message here"></textarea>
+                        @Html.ValidationMessageFor(model => model.Item1.Crsl_Message, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Item1.Crsl_Img, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Item1.Crsl_Img, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Item1.Crsl_Img, "", new { @class = "text-danger" })
+                    </div>
+
+                     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 mt-2">
+                         <label class="font-weight-bold">Fecha de Inicio</label>
+
+                         <div class="form-group form-group-feedback form-group-feedback-right">
+                             <input id="FechaInicio" readonly type="text" class="form-control form-control-lg" placeholder="DD/MM/AA">
+                             <div class="form-control-feedback form-control-feedback-lg">
+                                 <i class="fa fa-calendar-alt fa-1x"></i>
+                             </div>
+                         </div>
+                         @Html.HiddenFor(model => model.Item1.Crsl_DateStart)
+                     </div>
+
+                     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 mt-2">
+                         <label class="font-weight-bold">Fecha fin</label>
+
+                         <div class="form-group form-group-feedback form-group-feedback-right">
+                             <input id="FechaFin" readonly type="text" class="form-control form-control-lg" placeholder="DD/MM/AA">
+                             <div class="form-control-feedback form-control-feedback-lg">
+                                 <i class="fa fa-calendar-alt fa-1x"></i>
+                             </div>
+                         </div>
+                         @Html.HiddenFor(model => model.Item1.Crsl_DateEnd)
+                     </div>
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatos"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Basic modal*@
+
+<script>
+    $("#btnAgregar").on("click", function () {
+        const accion = 59;
+
+        ModalAgregar(accion);
+        var modalTitle = document.getElementById('modalTitle');
+
+        modalTitle.innerText = "Agregar a Carousel";
+    });
+
+    function ModalAgregar(accion) {
+        $("#Item1_Accion").val(accion);
+        $("#Item1_Crsl_IdCarousel").val('');
+        // Limpiar el input de texto para el modal de menu
+        $("#Item1_Crsl_Title").val('');
+        $("#Item1_Crsl_Message").val('');
+        $("#Item1_Crsl_Img").val('');
+        $("#Item1_Crsl_DateStart").val('');
+        $("#Item1_Crsl_DateEnd").val('');
+        document.getElementById("FechaInicio").value = "";
+        document.getElementById("FechaFin").value = "";
+        $("#ModalCarousel").modal("show");
+
+    }
+
+    function ValidarCampos() {
+        // Obtener los valores de los diferentes campos
+        var accion = $("#Item1_Accion").val();
+        var title = $("#Item1_Crsl_Title").val();
+        var message = $("#Item1_Crsl_Message").val();
+        var img = $("#Item1_Crsl_Img").val();
+        var fechaInicio = $("#FechaInicio").val();
+        var fechaFin = $("#FechaFin").val();
+
+        if (!title) {
+             Swal.fire({
+                 text: "Ingrese un Título.",
+                 icon: "warning",
+                 customClass: {
+                     confirmButton: 'btn btn-primary rounded-pill'
+                 }
+             });
+             return;
+        }
+        if (!message) {
+            Swal.fire({
+                text: "Ingrese el Mensaje.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+
+        if (!img) {
+            Swal.fire({
+                text: "Ingrese la Ruta de la Imagen.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+        if (fechaInicio == "") {
+            Swal.fire({
+                text: "Seleccione una Fecha de Inicio.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+
+        var partesFecha = fechaInicio.split('/');
+        // partesFecha contendrá [DD, MM, AAAA]
+        var fechaInicioDate = new Date(partesFecha[2], partesFecha[1] - 1, partesFecha[0]);
+        fechaInicioDate.setHours(0, 0, 0, 0);
+
+        var fechaActual = new Date();
+        fechaActual.setHours(0, 0, 0, 0);
+
+        if (fechaInicioDate < fechaActual) {
+            Swal.fire({
+                text: "La Fecha de Inicio no puede ser menor a la actual.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return false;
+        }
+
+
+        if (fechaFin == "") {
+            Swal.fire({
+                text: "Seleccione una Fecha de Fin.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+
+        if (fechaInicio >= fechaFin) {
+            Swal.fire({
+                text: "La Fecha de Inicio debe ser menor que la Fecha de Fin.",
+                icon: "warning",
+                customClass: {
+                    confirmButton: 'btn btn-primary rounded-pill'
+                }
+            });
+            return;
+        }
+
+        $("#Item1_Crsl_DateStart").val($("#FechaInicio").val());
+        $("#Item1_Crsl_DateEnd").val($("#FechaFin").val());
+
+        return true;
+    }
+
+    $("#btnGuardarDatos").on("click", function () {
+        if (ValidarCampos()) {
+            AJAXGuardarDatos(ObtenerDatos());
+        } else {
+            console.log("Error");
+        }
+    });
+
+    function AJAXGuardarDatos(objCarousel) {
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarCarrusel", "Menu")',
+            data: JSON.stringify({ objCarousel: objCarousel }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+
+            $("#ModalCarousel").modal("hide");
+            location.reload();
+
+            //SI OCURRE UN ERROR
+            if (result.resultado == 0) {
+                NotificacionBasica("@ViewBag.Title", result.mensaje, "error");
+            }
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+    function ObtenerDatos() {
+        let objCarousel = {
+            Accion: $("#Item1_Accion").val(),
+            Crsl_IdCarousel: $("#Item1_Crsl_IdCarousel").val(),
+            Crsl_Title: $("#Item1_Crsl_Title").val(),
+            Crsl_Message: $("#Item1_Crsl_Message").val(),
+            Crsl_Img: $("#Item1_Crsl_Img").val(),
+            Crsl_DateStart: $("#Item1_Crsl_DateStart").val(),
+            Crsl_DateEnd: $("#Item1_Crsl_DateEnd").val()
+        };
+
+        return objCarousel;
+    }
+
+    
+
+    function EditarCarrusel(datos, accion) {
+        row = JSON.parse(datos);
+        accion = parseInt(accion);
+
+        $("#Item1_Accion").val(accion);
+        $("#Item1_Crsl_IdCarousel").val(row.Crsl_IdCarousel);
+        $("#Item1_Crsl_Title").val(row.Crsl_Title);
+        $("#Item1_Crsl_Message").val(row.Crsl_Message);
+        $("#Item1_Crsl_Img").val(row.Crsl_Img);
+        $("#Item1_Crsl_DateStart").val(row.Crsl_DateStart);
+        $("#Item1_Crsl_DateEnd").val(row.Crsl_DateEnd);
+
+        const dateEnd = row.Crsl_DateEnd;
+        const timestamp = parseInt(dateEnd.match(/\(([^)]+)\)/)[1]);
+
+        // Create a Date object from the timestamp
+        const date = new Date(timestamp);
+
+        // Format the date as DD/MM/YYYY
+        const formattedDate = `${('0' + date.getDate()).slice(-2)}/${('0' + (date.getMonth() + 1)).slice(-2)}/${date.getFullYear()}`;
+
+        // Set the formatted date to the input field
+        document.getElementById('FechaFin').value = formattedDate;
+
+
+        const dateStart = row.Crsl_DateStart;
+        const timestamp2 = parseInt(dateStart.match(/\(([^)]+)\)/)[1]);
+
+        // Create a Date object from the timestamp
+        const date2 = new Date(timestamp2);
+
+        // Format the date as DD/MM/YYYY
+        const formattedDate2 = `${('0' + date2.getDate()).slice(-2)}/${('0' + (date2.getMonth() + 1)).slice(-2)}/${date2.getFullYear()}`;
+
+        // Set the formatted date to the input field
+        document.getElementById('FechaInicio').value = formattedDate2;
+
+
+        var modalTitle = document.getElementById('modalTitle');
+
+        modalTitle.innerText = "Editar Carrusel";
+
+        $("#ModalCarousel").modal("show");
+    }
+
+     function MensajeEliminacion(datos) {
+        row = JSON.parse(datos);
+         console.log(row);
+
+         swalInit.fire({
+             title: '@ViewBag.TituloPagina',
+             html: "<br>Se eliminara <b>" + row.Crsl_Title + "</b><br> ¿Deseas Continuar?",
+             icon: 'question',
+             showCancelButton: true,
+             confirmButtonText: '<i class="fas fa-check"></i> Si, estoy de acuerdo!',
+             cancelButtonText: '<i class="fas fa-times"></i> No, cancelar!',
+             buttonsStyling: false,
+             customClass: {
+                 confirmButton: 'btn btn-primary rounded-pill',
+                 cancelButton: 'btn btn-danger rounded-pill'
+             }
+         }).then(function (result) {
+             if (result.value) {
+                 let objCarousel = {
+                     Accion: 61,
+                     Crsl_IdCarousel: row.Crsl_IdCarousel,
+                     Crsl_DateStart: '01/01/1900',
+                     Crsl_DateEnd: '01/01/1900'
+
+                 };
+                 console.log(objCarousel);
+
+                 AJAXGuardarDatos(objCarousel)
+             }
+         });
+    }
+
+    $(function () {
+        $("#FechaInicio").datepicker({
+            dateFormat: "dd/mm/yy"
+        });
+    });
+
+    $(function () {
+        $("#FechaFin").datepicker({
+            dateFormat: "dd/mm/yy"
+        });
+    });
+</script>

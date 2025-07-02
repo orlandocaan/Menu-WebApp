@@ -1,0 +1,471 @@
+﻿
+@model BetaClientesVM.PML.PMLCalificacionesVM
+
+@{
+    ViewBag.Title = "PML Calificaciones Cursos";
+    ViewBag.NombreModulo = "PML";
+    ViewBag.TituloPagina = "Calificaciones Cursos";
+}
+
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h4></h4>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-1 mb-4 text-right">
+                        <a href="@Url.Action("ColaboradoresIndex", "PML")" class="btn btn-sm btn-secondary rounded-pill">
+                            <i class="fas fa-arrow-circle-left"></i> Regresar
+                        </a>
+                        <button class="btn btn-sm btn-primary rounded-pill" id="btnAgregarCalificaciones"><i class="fas fa-plus-circle fa-1x"></i> Agregar</button>
+                    </div>
+
+                </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divListaCalificaciones"></div>
+
+        </div>
+    </div>
+</div>
+
+
+@*Basic modal*@
+<div id="ModalCalificaciones" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;">Asignar Calificación</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+                <div class="row">
+                    @Html.HiddenFor(model => model.Accion)
+                    @Html.HiddenFor(model => model.Cal_IdCalificacion)
+
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        <label class="font-weight-bold">Curso</label>
+                        <div class="custom-file">
+                            <!-- Utiliza un input de tipo text para mostrar el nombre del curso -->
+                            <div id="buscarCurso" class="form-group form-group-feedback form-group-feedback-right">
+                                <input id="mostrarCurso" readonly type="text" class="form-control form-control-lg" placeholder="Seleccione un curso">
+                                <div class="form-control-feedback form-control-feedback-lg">
+                                    <i class="fa fa-search-plus fa-1x"></i>
+                                </div>
+                                @Html.HiddenFor(model => model.Cal_IdCurso)
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        @Html.LabelFor(model => model.Cal_Calificacion, htmlAttributes: new { @class = "font-weight-bold" })
+                        @Html.EditorFor(model => model.Cal_Calificacion, new { htmlAttributes = new { @class = "form-control text-right", @type = "number", @min = "0", @max = "100", @autocomplete = "off" } })
+                        @Html.ValidationMessageFor(model => model.Cal_Calificacion, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        <label class="font-weight-bold">Documento</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="Cal_Archivo" name="Buscar" onchange="mostrarNombreArchivo(this)">
+                            <label class="custom-file-label text-muted" for="Cal_Archivo">Seleccione un archivo</label>
+                            @Html.HiddenFor(model => model.Cal_NombreDoc)
+                            @Html.HiddenFor(model => model.Cal_DocEvidencia)
+                            @Html.HiddenFor(model => model.Cal_ExtensionDoc)
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        <label class="font-weight-bold">Fecha de Vigencia</label>
+
+                        <div class="form-group form-group-feedback form-group-feedback-right">
+                            <input id="FechaVigencia" readonly type="text" class="form-control form-control-lg" placeholder="DD/MM/AA">
+                            <div class="form-control-feedback form-control-feedback-lg">
+                                <i class="fa fa-calendar-alt fa-1x"></i>
+                            </div>
+                        </div>
+                        @Html.HiddenFor(model => model.Cal_FechaVigencia)
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 mt-2">
+                        <label class="font-weight-bold">Fecha del Curso</label>
+
+                        <div class="form-group form-group-feedback form-group-feedback-right">
+                            <input id="FechaCurso" readonly type="text" class="form-control form-control-lg" placeholder="DD/MM/AA">
+                            <div class="form-control-feedback form-control-feedback-lg">
+                                <i class="fa fa-calendar-alt fa-1x"></i>
+                            </div>
+                        </div>
+                        @Html.HiddenFor(model => model.Cal_FechaCurso)
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                <button type="button" class="btn btn-primary rounded-pill " id="btnGuardarDatosColaborador"><i class="fas fa-save fa-1x"></i> Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Basic modal*@
+
+
+<div id="ModalCursos" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header headerModal">
+                <h5 class="modal-title text-bold"><img src="~/Images/gotas_blancas.svg" alt="Icono" class="mr-2" style="height: 27px; width: 27px;">Asignar Curso</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body border-bottom border-top" style="border-color: #ccc;">
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="divListaCursos" data-dismiss="modal"></div>
+
+            </div>
+
+            <div class="modal-footer mt-2">
+                <button type="button" class="btn btn-link rounded-pill bg-light" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var columnaAcciones = $('#miTabla th:nth-child(7), #miTabla td:nth-child(7)');
+    columnaAcciones.css('display', 'in-line');
+
+    function ConsultarCalificaciones()
+    {
+        var url = window.location.href;
+        var idColaborador = obtenerParametroDeUrl(url, 'idColaborador');
+        var nombreColaborador = obtenerParametroDeUrl(url, 'nombreColaborador');
+        $("h4").text(nombreColaborador);
+
+        $.ajax({
+            type       : "get",
+            url: '@Url.Action("ConsultarCalificaciones", "PML")',
+            data: { idColaborador: idColaborador },
+            contentType: "application/json; charset=utf-8",
+        }).done(function (result) {
+
+            $("#divListaCalificaciones").html(result);
+
+            $('#miTabla').each(function () {
+                $(this).DataTable().destroy();
+                $(this).DataTable();
+            });
+
+            
+        }).fail(function (error) {
+
+            NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de calificaciones.", "error");
+
+        });
+    }
+
+    ConsultarCalificaciones();
+
+    function CargarTabla() {
+        $('table').each(function () {
+            $(this).DataTable().destroy();
+            $(this).DataTable();
+        });
+    }
+
+    $("#btnAgregarCalificaciones").on("click", function () {
+        const accion = 1;
+
+        //Para limpiar los datos a los elementos del formulario
+        var datosModal = JSON.stringify({
+
+        });
+        ConsultarCursos();
+        DatosModalCalificaciones(datosModal, accion);
+    });
+
+    function DatosModalCalificaciones(datosModal, accion) {
+        row = JSON.parse(datosModal);
+        $("#Accion").val(accion);
+        $("#Col_IdColaborador").val(row.Col_IdColaborador);
+
+            // Limpiar el input de texto para el nombre del curso
+            $('#buscarCurso').val('');
+            $('#mostrarCurso').val('');
+            $('#mostrarCurso').next('.custom-file-label').html('Seleccione un curso');
+            // Limpiar el input de archivo
+            $('#Cal_Archivo').val('');
+            $('#Cal_Archivo').next('.custom-file-label').html('Seleccione un archivo');
+            // Limpiar el campo de calificación
+            $('#Cal_Calificacion').val('');
+            document.getElementById("FechaVigencia").value = "";
+            document.getElementById("FechaCurso").value = "";
+
+        $("#ModalCalificaciones").modal("show");
+
+    }
+
+    function EditarCalificaciones(datosModal, accion) {
+        row = JSON.parse(datosModal);
+        $("#Accion").val(accion);
+        $("#Col_IdColaborador").val(row.Col_IdColaborador);
+        $("#Cal_IdCalificacion").val(row.Cal_IdCalificacion);
+
+        $('#buscarCurso').val('');
+        document.getElementById('mostrarCurso').value = row.NombreDelCurso;
+        $('#Cal_IdCurso').val(row.Cal_IdCurso);
+        // Limpiar el input de archivo
+        $('#Cal_NombreDoc').val(row.Cal_NombreDoc);
+        $('#Cal_Archivo').next('.custom-file-label').html(row.Cal_NombreDoc);
+
+
+        // Limpiar el campo de calificación
+        $('#Cal_Calificacion').val(row.Cal_Calificacion);
+
+        const cal_fechaCurso = row.Cal_FechaCurso;
+        const timestamp = parseInt(cal_fechaCurso.match(/\(([^)]+)\)/)[1]);
+
+        // Create a Date object from the timestamp
+        const date = new Date(timestamp);
+
+        // Format the date as DD/MM/YYYY
+        const formattedDate = `${('0' + date.getDate()).slice(-2)}/${('0' + (date.getMonth() + 1)).slice(-2)}/${date.getFullYear()}`;
+
+        // Set the formatted date to the input field
+        document.getElementById('FechaCurso').value = formattedDate;
+        $('#Cal_FechaCurso').val(row.Cal_FechaCurso);
+
+
+        const cal_fechaVigencia = row.Cal_FechaVigencia;
+        const timestamp2 = parseInt(cal_fechaVigencia.match(/\(([^)]+)\)/)[1]);
+
+        // Create a Date object from the timestamp
+        const date2 = new Date(timestamp2);
+
+        // Format the date as DD/MM/YYYY
+        const formattedDate2 = `${('0' + date2.getDate()).slice(-2)}/${('0' + (date2.getMonth() + 1)).slice(-2)}/${date2.getFullYear()}`;
+
+        // Set the formatted date to the input field
+        document.getElementById('FechaVigencia').value = formattedDate2;
+        $('#Cal_FechaVigencia').val(row.Cal_FechaVigencia);
+
+        $("#ModalCalificaciones").modal("show");
+
+    }
+
+    function ConsultarCursos()
+    {
+        $.ajax({
+            type       : "get",
+            url        : '@Url.Action("ConsultarCursosSinBotones", "PML")',
+            contentType: "application/json; charset=utf-8",
+        }).done(function (result) {
+
+            $("#divListaCursos").html(result);
+
+            $('#tablacursos').each(function () {
+                $(this).DataTable().destroy();
+                $(this).DataTable();
+            });
+
+
+        }).fail(function (error) {
+
+            NotificacionBasica("@ViewBag.Title", "Ocurrió un error al consultar la lista de calificaciones.", "error");
+
+        });
+    }
+
+    $("#buscarCurso").on("click", function () {
+        $("#ModalCursos").modal("show");
+
+
+    });
+
+    function AgregarCurso(datos) {
+        var row = JSON.parse(datos);
+        var nameCurso = row.Cur_Nombre;
+        $('#Cal_IdCurso').val(row.Cur_IdCurso);
+
+        document.getElementById('mostrarCurso').value = nameCurso;
+
+    }
+
+    // Function to convert array buffer to base64
+    function arrayBufferToBase64(buffer) {
+        var binary = '';
+        var bytes = new Uint8Array(buffer);
+        var len = bytes.byteLength;
+        for (var i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+    }
+
+    // Función para obtener el valor de un parámetro de la URL
+    function obtenerParametroDeUrl(url, parametro) {
+        // Crear una expresión regular para buscar el valor del parámetro en la URL
+        var patron = new RegExp('[?&]' + parametro + '=([^&#]*)');
+        var resultados = patron.exec(url);
+        if (resultados) {
+            return decodeURIComponent(resultados[1].replace(/\+/g, ' '));
+        } else {
+            return null;
+        }
+    }
+
+    $(document).ready(function () {
+        $('#btnGuardarDatosColaborador').click(function () {
+            // Obtener los valores de los diferentes campos
+            var accion = $('#Accion').val();
+            var curso = $('#Cal_IdCurso').val();
+            var idCalificacion = $('#Cal_IdCalificacion').val();
+            var calificacion = $('#Cal_Calificacion').val();
+            var fechaVigencia = $('#FechaVigencia').val();
+            var fechaCurso = $('#FechaCurso').val();
+            var nombreDoc = $('#Cal_NombreDoc').val();;
+            var extensionDoc = $('#Cal_ExtensionDoc').val();
+            var docEvidencia = $('#Cal_DocEvidencia').val();
+
+            if (accion == 3) {
+                // Convertir la cadena a un objeto DateTime usando Moment.js
+                fechaVigencia = moment(fechaVigencia, 'DD/MM/YYYY');
+                fechaCurso = moment(fechaCurso, 'DD/MM/YYYY');
+            }
+
+            if (!curso) {
+                Swal.fire({
+                    text: "Seleccione un curso.",
+                    icon: "warning"
+                });
+                return;
+            }
+            if (!calificacion) {
+                Swal.fire({
+                    text: "Por favor, ingrese una calificación.",
+                    icon: "warning"
+                });
+                return;
+            }
+            var calificacionNumero = parseFloat(calificacion);
+
+            if (isNaN(calificacionNumero) || calificacionNumero < 0 || calificacionNumero > 100) {
+                Swal.fire({
+                    text: "La calificación debe ser un número entre 0 y 100.",
+                    icon: "warning"
+                });
+                return;
+            }
+            if (!fechaVigencia) {
+                Swal.fire({
+                    text: "Por favor, seleccione una fecha de vigencia.",
+                    icon: "warning"
+                });
+                return;
+            }
+            if (!fechaCurso) {
+                Swal.fire({
+                    text: "Por favor, seleccione una fecha del curso.",
+                    icon: "warning"
+                });
+                return;
+            }
+
+            
+            if (fechaCurso >= fechaVigencia) {
+                Swal.fire({
+                    text: "La fecha del curso debe ser menor que la fecha de vigencia.",
+                    icon: "warning"
+                });
+                return;
+            }
+
+                // Obtener la URL actual
+                var url = window.location.href;
+
+                // Obtener el valor del parámetro idColaborador
+                var idColaborador = obtenerParametroDeUrl(url, 'idColaborador');
+
+                let datos = {
+                    Accion: accion,
+                    Cal_IdColaborador: idColaborador,
+                    Cal_IdCurso: curso,
+                    Cal_DocEvidencia: docEvidencia,
+                    Cal_NombreDoc: nombreDoc,
+                    Cal_ExtensionDoc: extensionDoc,
+                    Cal_Calificacion: calificacion,
+                    Cal_IdCalificacion: idCalificacion,
+                    Cal_FechaVigencia: fechaVigencia,
+                    Cal_FechaCurso: fechaCurso
+                };
+
+
+               gestionarCalificaciones(datos);
+
+        });
+    });
+
+
+    function mostrarNombreArchivo(input) {
+
+        var reader = new FileReader();
+
+        reader.onload = function (event) {
+            var buffer = event.target.result;
+            var bytes = arrayBufferToBase64(buffer);
+
+
+            $('#Cal_NombreDoc').val(input.files[0].name);
+            $('#Cal_ExtensionDoc').val(input.files[0].name.split('.').pop());
+            $('#Cal_DocEvidencia').val(bytes);
+
+            var nombreArchivo = '';
+            if (input.files && input.files.length > 0) {
+                nombreArchivo = input.files[0].name;
+            }
+            var etiquetaArchivo = input.nextElementSibling;
+            if (etiquetaArchivo) {
+                etiquetaArchivo.innerText = nombreArchivo;
+            }
+        };
+
+        reader.readAsArrayBuffer(input.files[0]);
+    }
+
+    function gestionarCalificaciones(datos) {
+        $.ajax({
+            type       :    'post',
+            url        :    '@Url.Action("GestionarCalificaciones", "PML")',
+            data: JSON.stringify({ objCalificacionesVM: datos }),
+            contentType:    'application/json; charset=utf-8',
+        }).done(function (result) {
+            ConsultarCalificaciones();
+            $("#ModalCalificaciones").modal("hide");
+
+            //SI OCURRE UN ERROR
+            if (result.resultado == 0) {
+                NotificationBasica("@ViewBag.Title", result.mensaje, "error");
+            }
+        }).fail(function (error) {
+            NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+        });
+    }
+
+    $(function () {
+        $("#FechaVigencia").datepicker({
+            dateFormat: "dd/mm/yy"
+        });
+    });
+
+    $(function () {
+        $("#FechaCurso").datepicker({
+            dateFormat: "dd/mm/yy"
+        });
+    });
+
+</script>

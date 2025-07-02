@@ -1,0 +1,48 @@
+﻿@model IEnumerable<BetaClientesVM.Menu.MFunctionsVM>
+
+<table class="table datatable-basic small coloresTablas" width="100%" id="miTabla">
+    <thead>
+        <tr>
+            <th>Código de la función</th>
+            <th>Tipo de función</th>
+            <th>URL de la función</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @if (Model != null)
+        {
+            foreach (var row in Model)
+            {
+
+                <tr>
+
+                    <td>@Html.DisplayFor(modelItem => row.Code)</td>
+                    <td>
+                        @if (row.Type == 1)
+                        {
+                            <span >Validación interna</span>
+                        }
+                        else if (row.Type == 2)
+                        {
+                            <span >Programa / URL</span>
+                        }
+                    </td>
+                    <td>@Html.DisplayFor(modelItem => row.Url)</td>
+                    <td class="text-center" id="idButton">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="DatosModalFunciones('@Json.Encode(row)', '12')" title="Editar">
+                                <i class="fa fa-edit fa-1x"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger rounded-pill text-white mr-1" onclick="MensajeEliminacion('@Json.Encode(row)', '11')" title="Eliminar">
+                                <i class="fa fa-trash fa-1x"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+

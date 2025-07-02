@@ -1,0 +1,48 @@
+﻿@model IEnumerable<BetaClientesVM.PML.PMLEquiposVM>
+
+<div class="table-responsive">
+    <table class="table datatable-basic small coloresTablas" width="100%">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(label => label.Equi_Nombre)</th>
+                <th>@Html.DisplayNameFor(label => label.Equi_TipoEquipo)</th>
+                <th>@Html.DisplayNameFor(label => label.Equi_IdArea)</th>
+                <th>@Html.DisplayNameFor(label => label.Equi_POES)</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (Model != null)
+            {
+                foreach (var row in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => row.Equi_Nombre)</td>
+                        <td>@Html.DisplayFor(modelItem => row.NombreTipoEquipo)</td>
+                        <td>@Html.DisplayFor(modelItem => row.NombreArea)</td>
+                        <td>@Html.DisplayFor(modelItem => row.Equi_POES)</td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <a href="@Url.Action("PlanDeLimpiezaEquipo", "PML", new { idEquipo = row.Equi_IdEquipo } )" class="btn btn-sm btn-info rounded-pill mr-1" title="Plan de Limpieza del Equipo">
+                                    <i class="fas fa-broom fa-1x"></i>
+                                </a>
+
+                                <button type="button" class="btn btn-sm btn-yellow rounded-pill text-white mr-1" onclick="DatosModalEquipo('@Json.Encode(row)', '3')" title="Editar">
+                                    <i class="fas fa-edit fa-1x"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger rounded-pill text-white ml-1" onclick="MensajeEliminacion('@Json.Encode(row)')" title="Eliminar">
+                                    <i class="fas fa-trash fa-1x"></i>
+                                </button>
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+
+

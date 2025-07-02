@@ -1,0 +1,258 @@
+﻿@model IEnumerable<BetaClientesVM.Menu.MUserVM>
+
+
+@{
+    ViewBag.Title = "Prueba";
+    ViewBag.NombreModulo = "Menu";
+    ViewBag.TituloPagina = "Mensajes";
+
+    int idUsuario = Convert.ToInt32(Session["UserID"]);
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.9/signalr.min.js"></script>
+
+<style>
+
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .chat-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .chat-messages {
+        height: 550px; /* Ajusta la altura según sea necesario */
+        overflow-y: auto; /* Habilitar el desplazamiento vertical */
+    }
+
+
+    .messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .message-input {
+        flex-shrink: 0;
+    }
+
+    .chat-online {
+        color: #34ce57;
+    }
+
+    .chat-offline {
+        color: #e4606d;
+    }
+
+    .chat-message-left,
+    .chat-message-right {
+        display: flex;
+        flex-shrink: 0;
+    }
+
+    .chat-message-left {
+        margin-right: auto;
+    }
+
+    .chat-message-right {
+        flex-direction: row-reverse;
+        margin-left: auto;
+    }
+
+    .py-3 {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+    .px-4 {
+        padding-right: 1.5rem !important;
+        padding-left: 1.5rem !important;
+    }
+
+    .border-top {
+        border-top: 1px solid #dee2e6 !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+
+            <div class="row g-0">
+                <div class="col-12 col-lg-5 col-xl-3 border-right">
+                    <div class="px-4 d-none d-md-block">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <input type="text" class="form-control my-3" placeholder="Search...">
+                            </div>
+                        </div>
+                    </div>
+                    @foreach (var row in Model)
+                    {
+                        if (row.UserId != idUsuario)
+                        {
+                            <a href="#" class="list-group-item list-group-item-action border-0" onclick="updateChatHeader('@System.Convert.ToBase64String(row.Img)', '@row.Name @row.LastName', @row.UserId)">
+                                <div class="d-flex align-items-start">
+                                    @if (row.Img.Count() > 0)
+                                    {
+                                        <img src="data:image/jpeg;base64,@System.Convert.ToBase64String(row.Img)" class="rounded-circle mr-1" alt="" width="40" height="40">
+                                    }
+                                    else
+                                    {
+                                        <img src="~/images/SystemConfigImages/defaultUserImage.png" class="rounded-circle mr-1" alt="" width="40" height="40">
+                                    }
+                                    <div class="flex-grow-1 ml-3">
+                                        @($"{row.Name} {row.LastName}")
+                                        <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+
+                    }
+                    <hr class="d-block d-lg-none mt-1 mb-0">
+                </div>
+                <div class="col-12 col-lg-7 col-xl-9">
+                    <div class="chat-content">
+                        <div class="py-2 px-4 border-bottom d-none d-lg-block">
+                            <div class="d-flex align-items-center py-1">
+                                <div class="position-relative" id="chat-avatar">
+                                    <img src="" class="rounded-circle mr-1" alt="" width="40" height="40">
+                                </div>
+                                <div class="flex-grow-1 pl-3" id="chat-name">
+                                    <strong></strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="messages" id="divConversasiones">
+                            <!-- Conversation messages will be loaded here -->
+                        </div>
+                        <div class="message-input py-3 px-4 border-top">
+                            <div class="input-group">
+                                <input id="messageInput" type="text" class="form-control" placeholder="Type your message">
+                                <button id="sendButton" class="btn btn-primary">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+        
+        var UserId;
+
+        function updateChatHeader(imgBase64, name, idUsuario) {
+            var imgSrc = imgBase64 ? 'data:image/jpeg;base64,' + imgBase64 : '/images/SystemConfigImages/defaultUserImage.png';
+            document.querySelector('#chat-avatar img').src = imgSrc;
+            document.getElementById('chat-name').innerHTML = '<strong>' + name + '</strong>';
+
+            UserId = idUsuario;
+            ConsultarConversasion(idUsuario);
+        }
+
+        function ConsultarConversasion(idUsuario) {
+            $.ajax({
+                 type: 'post',
+                 url: '@Url.Action("ConsultarConversasion", "Menu")',
+                 data: JSON.stringify({ idUserSecundary: idUsuario }),
+                 contentType: 'application/json; charset=utf-8',
+            }).done(function (result) {
+                $("#divConversasiones").html(result);
+
+                //SI OCURRE UN ERROR
+             if (result.resultado == 0) {
+                 NotificacionBasica("@ViewBag.Title", result.mensaje, "error");
+             }
+            }).fail(function (error) {
+                 NotificacionBasica("@ViewBag.Title", "No se pudo completar la operación. Por favor, inténtalo de nuevo más tarde.", "error");
+            });
+        }
+
+        $('#sendButton').click(function () {
+            const message = $('#messageInput').val();
+            const idConversationRight = $('#divConversasiones .chat-message-right:last').data('idconversation');
+            const idConversationLeft = $('#divConversasiones .chat-message-left:last').data('idconversation');
+            let id;
+
+            if (idConversationRight !== undefined && idConversationRight !== null) {
+                id = idConversationRight;
+            } else if (idConversationLeft !== undefined && idConversationLeft !== null) {
+                id = idConversationLeft;
+            } else {
+                id = null;
+            }
+
+            if (message.trim() !== '') {
+                if (idConversationLeft != null || idConversationRight != null) {
+
+                    let objMessage = {
+                        Accion: 64,
+                        UserId1: idUsuario,
+                        IdConversation: id,
+                        Content: message
+                    }
+
+                    $.ajax({
+                        type: "post",
+                        url: '@Url.Action("ManageConversation", "Menu")',
+                        data: JSON.stringify({ objMessage: objMessage }),
+                        contentType: "application/json; charset=utf-8",
+                    }).done(function (result) {
+
+                        $("#messageInput").val('');
+                        ConsultarConversasion(UserId);
+
+                    }).fail(function (error) {
+
+                    });
+                } else {
+                    let objMessage = {
+                        Accion: 63,
+                        UserId1: idUsuario,
+                        UserId2: UserId,
+                        Content: message
+                    }
+
+                    $.ajax({
+                        type: "post",
+                        url: '@Url.Action("ManageConversation", "Menu")',
+                        data: JSON.stringify({ objMessage: objMessage }),
+                        contentType: "application/json; charset=utf-8",
+                    }).done(function (result) {
+
+                    }).fail(function (error) {
+
+                    });
+                }
+            }
+        });
+
+
+        // Función para iniciar el polling
+        function startPolling() {
+            // Llama a ConsultarConversasion cada 5 segundos
+            setInterval(function () {
+                if (UserId !== undefined && UserId !== null) {
+                    ConsultarConversasion(UserId);
+                }
+            }, 5000); // 5000 milisegundos = 5 segundos
+        }
+
+        // Inicia el polling cuando el documento esté listo
+        $(document).ready(function() {
+            startPolling();
+        });
+</script>

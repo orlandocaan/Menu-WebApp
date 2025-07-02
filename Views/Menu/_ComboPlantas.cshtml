@@ -1,0 +1,7 @@
+﻿@model BetaClientesVM.Menu.MUserVM
+
+
+
+    @Html.LabelFor(model => model.IdPlanta, htmlAttributes: new { @class = "font-weight-bold" })
+    @Html.DropDownListFor(model => model.IdPlanta, ViewBag.cmbPlantas as IEnumerable<SelectListItem>, "Selecciona una opción", new { @id = "idPlanta", @class = "form-control" })
+    @Html.ValidationMessageFor(model => model.IdPlanta, "", new { @class = "text-danger" })

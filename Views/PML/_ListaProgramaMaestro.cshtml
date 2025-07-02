@@ -1,0 +1,41 @@
+﻿@model IEnumerable<BetaClientesVM.PML.PMLProgramaVM>
+
+<div class="table-responsive">
+    <table class="table datatable-basic small coloresTablas" id="dtAreas" width="100%">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(label => label.Pro_IdPrograma)</th>
+                <th>@Html.DisplayNameFor(label => label.Pro_FechaPrograma)</th>
+                <th>@Html.DisplayNameFor(label => label.Pro_Estatus)</th>
+                <th>@Html.DisplayNameFor(label => label.Pro_IdTurno)</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (Model != null)
+            {
+                foreach (var row in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => row.Pro_IdPrograma)</td>
+                        <td>@(row.Pro_FechaPrograma.HasValue ? row.Pro_FechaPrograma.Value.ToShortDateString() : "")</td>
+                        <td>@Html.DisplayFor(modelItem => row.Pro_Estatus)</td>
+                        <td>@Html.DisplayFor(modelItem => row.NombreTurno)</td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <a href="@Url.Action("DetallesReporteGeneralPML","PML", new { idPrograma= row.Pro_IdPrograma })" class="btn btn-sm btn-yellow rounded-pill text-white mr-1">
+                                    <i class="fas fa-edit fa-1x"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+
+
+

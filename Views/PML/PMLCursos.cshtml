@@ -1,0 +1,197 @@
+﻿@model  Portal_BetaClientes.ViewModels.Cursos
+
+@{
+    ViewBag.Title = "PMLCursos";
+}
+
+@*Button trigger modal*@
+<div class="modal-footer">
+    <button type="submit" class="btn btn-primary rounded-pill" data-toggle="modal" onclick="AgregarCurso()">
+        <i class="fas fa-plus-circle fa-1x mr-1"></i>Agregar
+    </button>
+</div>
+<div class="modal fade" id="ModalCurso" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="Form">
+                    <div class="row">
+                        <div class="col-md-12">
+                            @Html.LabelFor(model => model.Cur_Nombre, htmlAttributes: new { @class = "control-label" })
+                            @Html.EditorFor(model => model.Cur_Nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                        </div>
+                    </div>
+
+                    <div class="row mt-1">
+                        <div class="col-md-12">
+                            @Html.LabelFor(model => model.Cur_Objetivos, htmlAttributes: new { @class = "control-label" })
+                            @Html.TextAreaFor(model => model.Cur_Objetivos, new { @class = "form-control", @autocomplete = "off" })
+                        </div>
+                    </div>
+
+                    <div class="row pt-1">
+                        <div class="col-md-6">
+                            @Html.HiddenFor(model => model.Cur_IdCurso, new { @class = "form-control", @autocomplete = "off" })
+                            @Html.HiddenFor(model => model.Accion, new { @class = "form-control", @autocomplete = "off" })
+                        </div>
+                    </div>
+
+                    <div class="modal-footer mt-3">
+                        <button type="button" class="btn btn-link" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" id="enviarFormulario" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div id="divListaCursos" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+
+<script>
+        function ConsultarCursos() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ObtenerListaCursos", "PML")',
+                data: {  },
+            }).done(function (result) {
+                $("#divListaCursos").html(result);
+            }).fail(function (error) {
+                Notificaciones("Lista de Cursos", "Error al consultar los cursos", "error");
+            });
+        }
+
+        ConsultarCursos();
+
+    function AgregarCurso() {
+            $('#ModalCurso .modal-title').text('Agregar Curso');
+            $("#ModalCurso").modal("show");
+            $("#Cur_Nombre").val("");
+            $("#Cur_Objetivos").val("");
+            $("#Accion").val(2);
+        }
+
+        function EditarCurso(datos) {
+            var row = JSON.parse(datos);
+            $('#ModalCurso .modal-title').text('Editar Curso');
+            $("#ModalCurso").modal("show");
+            $("#Cur_Nombre").val(row.Cur_Nombre);
+            $("#Cur_Objetivos").val(row.Cur_Objetivos);
+            $("#Cur_IdCurso").val(row.Cur_IdCurso);
+            $("#Accion").val(3);
+        }
+
+    function EliminarCurso(datos) {
+        var row = JSON.parse(datos);
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+            swalWithBootstrapButtons.fire({
+                title: "¿Estás seguro?",
+                text: "!Eliminaras el curso " + row.Cur_Nombre + "!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Si, eliminar!",
+                cancelButtonText: "No, cancelar!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    //Metodo en ajax para llamar al controlador y eliminar el curso
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("EliminarCurso", "PML")',
+                        data: datos,
+                        contentType: "application/json; charset=utf-8",
+                    }).done(function (result) {
+                        ConsultarCursos();
+                    }).fail(function (error) {
+                        Notificaciones("Eliminar Curso", "Error al eliminar el curso", "error");
+                    });
+
+                } 
+            });
+    }
+
+
+    $('#Form').submit(function (event) {
+    // Evitar que el formulario se envíe de forma convencional
+    event.preventDefault();
+
+    // Obtener los datos del formulario
+    var Accion = parseInt($('#Accion').val().trim());
+    var nombreCurso = $('#Cur_Nombre').val().trim();
+    var objetivosCurso = $('#Cur_Objetivos').val().trim();
+
+    // Verificar si los campos obligatorios están vacíos
+        if (nombreCurso === '' || objetivosCurso === '') {
+            Swal.fire({
+                title: "Error!",
+                text: "¡Por favor completa todos los campos!",
+                icon: "warning"
+            });
+        return; 
+    }
+
+        console.log("Accion: " + Accion);
+
+    // Definir la URL a la que se enviarán los datos según el valor de Accion
+    var url;
+    switch (Accion) {
+        case 2:
+            url = '@Url.Action("AgregarCurso", "PML")'; 
+            break;
+        case 3:
+            url = '@Url.Action("EditarCurso", "PML")'; 
+            break;
+        default:
+            alert("Accion no reconocida.");
+            return; 
+    }
+
+    // Si los campos no están vacíos, continuar con la solicitud AJAX
+    var formData = $(this).serialize();
+
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    // Manejar la respuesta del servidor
+                    if (response.success) {
+                        ConsultarCursos();
+                        $("#ModalCurso").modal("hide");
+                    } else {
+                        // Si ocurrió un error, mostrar un mensaje de error
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    // Manejar errores de la solicitud AJAX
+                    Swal.fire({
+                        title: "Error!",
+                        text: "¡El curso no se agrego!",
+                        icon: "warning"
+                    });
+                }
+            });
+
+
+});
+</script>
+
+

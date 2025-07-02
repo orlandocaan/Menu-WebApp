@@ -1,0 +1,24 @@
+﻿
+@{
+    ViewBag.Title = "PMLCalificaciones";
+}
+
+
+
+
+
+<div id="divDDLAreas" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+<script>
+    function ConsultarAreas() {
+    $.ajax({
+        type: "POST",
+        url: '@Url.Action("ObtenerListaAreas", "PML")',
+        data: {  },
+    }).done(function (result) {
+        $("#divDDLAreas").html(result);
+    }).fail(function (error) {
+        Notificaciones("Lista de Cursos", "Error al consultar los cursos", "error");
+    });
+}
+    ConsultarAreas();
+</script>
